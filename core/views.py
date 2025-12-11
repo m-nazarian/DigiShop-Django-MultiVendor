@@ -1,5 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from products.models import Product
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 
 def home(request):
     # فقط محصولات منتشر شده و موجود رو بیار
@@ -36,3 +38,17 @@ def product_detail(request, slug):
         'range_5': range(1, 6),
     }
     return render(request, 'core/product_detail.html', context)
+
+
+@login_required
+@require_POST
+def toggle_wishlist(request, slug):
+    product = get_object_or_404(Product, slug=slug)
+
+    if product.wishlist.filter(id=request.user.id).exists():
+        product.wishlist.remove(request.user)  # حذف از علاقه مندی
+    else:
+        product.wishlist.add(request.user)  # افزودن به علاقه مندی
+
+    # فقط دکمه جدید رو برمی‌گردونیم، نه کل صفحه رو!
+    return render(request, 'core/includes/wishlist_button.html', {'product': product})

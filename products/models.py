@@ -108,6 +108,13 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    wishlist = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='wishlist',
+        blank=True,
+        verbose_name=_('Wishlist')
+    )
+
     class Meta:
         verbose_name = _('Product')
         verbose_name_plural = _('Products')
