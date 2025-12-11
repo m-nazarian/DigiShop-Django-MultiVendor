@@ -7,7 +7,7 @@ db.sqlite3
 media/
 staticfiles/
 
-# Environment variables (خیلی مهم - هرگز نباید آپلود شود)
+# Environment variables
 .env
 .env.local
 
@@ -20,7 +20,7 @@ env/
 .idea/
 .vscode/
 
-# Node modules (برای Tailwind)
+# Node modules
 node_modules/
 
 # OS generated files

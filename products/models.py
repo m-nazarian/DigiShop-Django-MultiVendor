@@ -14,7 +14,6 @@ class Category(models.Model):
     """
     name = models.CharField(_('Name'), max_length=100)
     slug = models.SlugField(max_length=150, unique=True, allow_unicode=True)
-    # این فیلد باعث میشه بتونیم زیرمجموعه بسازیم (Self Referencing ForeignKey)
     parent = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,
@@ -62,7 +61,7 @@ class Product(models.Model):
         PUBLISHED = 'published', _('Published')
         REJECTED = 'rejected', _('Rejected')
 
-    # ارتباط با فروشنده (حیاتی برای سیستم چند فروشنده)
+    # ارتباط با فروشنده
     vendor = models.ForeignKey(
         Vendor,
         on_delete=models.CASCADE,
@@ -72,7 +71,7 @@ class Product(models.Model):
 
     category = models.ForeignKey(
         Category,
-        on_delete=models.PROTECT,  # اگه دسته پاک شد محصول پاک نشه
+        on_delete=models.PROTECT,
         related_name='products',
         verbose_name=_('Category')
     )
@@ -95,7 +94,7 @@ class Product(models.Model):
     discount_price = models.PositiveIntegerField(_('Discounted Price'), null=True, blank=True)
     stock = models.PositiveIntegerField(_('Stock'), default=0)
 
-    # ویژگی‌های داینامیک (نکته کلیدی پروژه)
+    # ویژگی‌های داینامیک
     # مثال دیتا: {"ram": "8GB", "screen": "6.5 inch", "color": "Blue"}
     specifications = models.JSONField(_('Specifications'), default=dict, blank=True)
 

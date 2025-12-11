@@ -33,6 +33,6 @@ def product_detail(request, slug):
         'product': product,
         'reviews': reviews,
         'avg_rating': round(avg_rating, 1),
-        'range_5': range(1, 6),  # برای حلقه نمایش ستاره‌ها
+        'range_5': range(1, 6),
     }
     return render(request, 'core/product_detail.html', context)
