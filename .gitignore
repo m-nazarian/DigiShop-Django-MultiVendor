@@ -1,0 +1,28 @@
+# Django basics
+*.log
+*.pot
+*.pyc
+__pycache__/
+db.sqlite3
+media/
+staticfiles/
+
+# Environment variables (خیلی مهم - هرگز نباید آپلود شود)
+.env
+.env.local
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# PyCharm & VSCode metadata
+.idea/
+.vscode/
+
+# Node modules (برای Tailwind)
+node_modules/
+
+# OS generated files
+.DS_Store
+Thumbs.db

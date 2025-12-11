@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+
+<div class="mb-12 bg-white rounded-2xl p-8 shadow-sm text-center border border-gray-100">
+    <h1 class="text-3xl font-bold mb-4 text-gray-900">بهترین‌ها را از ما بخواهید</h1>
+    <p class="text-gray-500 mb-6">جستجو در بین هزاران محصول با بهترین قیمت</p>
+    <div class="max-w-xl mx-auto relative">
+        <input type="text" class="w-full py-3 px-5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none" placeholder="نام محصول، برند یا دسته...">
+    </div>
+</div>
+
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-bold border-r-4 border-red-600 pr-3">جدیدترین محصولات</h2>
+    <a href="#" class="text-red-600 text-sm hover:underline">مشاهده همه</a>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {% for product in products %}
+    <a href="{{ product.get_absolute_url }}" class="block">
+        <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 overflow-hidden group">
+            <div class="relative aspect-square bg-gray-100 overflow-hidden">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                {% else %}
+                    <div class="flex items-center justify-center h-full text-gray-400">بدون تصویر</div>
+                {% endif %}
+
+                {% if product.discount_price %}
+                <span class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    تخفیف
+                </span>
+                {% endif %}
+            </div>
+
+            <div class="p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{{ product.category.name }}</span>
+                    {% if product.brand %}
+                    <span class="text-xs text-blue-500 font-medium">{{ product.brand.name }}</span>
+                    {% endif %}
+                </div>
+
+                <h3 class="font-bold text-gray-800 text-sm mb-3 line-clamp-2 h-10 leading-5">
+                    {{ product.name }}
+                </h3>
+
+                <div class="flex flex-col items-end gap-1">
+                    {% if product.discount_price %}
+                        <span class="text-xs text-gray-400 line-through">{{ product.price|intcomma }} تومان</span>
+                        <span class="text-lg font-bold text-gray-900">{{ product.discount_price|intcomma }} <span class="text-xs font-normal">تومان</span></span>
+                    {% else %}
+                        <span class="text-lg font-bold text-gray-900">{{ product.price|intcomma }} <span class="text-xs font-normal">تومان</span></span>
+                    {% endif %}
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-gray-50 flex justify-between items-center text-xs text-gray-500">
+                    <div class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        {{ product.vendor.store_name }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </a>
+    {% empty %}
+    <div class="col-span-full text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+        <p class="text-gray-500">هنوز محصولی اضافه نشده است.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

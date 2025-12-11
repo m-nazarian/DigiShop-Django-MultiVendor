@@ -1,0 +1,58 @@
+{% load static %}
+{% load tailwind_tags %}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiShop | {% block title %}خانه{% endblock %}</title>
+
+    {% tailwind_css %}
+
+    <style>
+        @font-face {
+            font-family: 'Vazirmatn';
+            src: url("{% static 'fonts/Vazirmatn-Regular.woff2' %}") format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body { font-family: 'Vazirmatn', sans-serif; }
+
+        /* برای جلوگیری از پرش تصویر هنگام لود شدن آلپاین */
+        [x-cloak] { display: none !important; }
+    </style>
+
+    <script src="{% static 'js/htmx.min.js' %}"></script>
+    <script defer src="{% static 'js/alpine.min.js' %}"></script>
+
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-red-600">DigiShop</div>
+            <nav class="hidden md:flex gap-6 text-sm font-medium">
+                <a href="#" class="hover:text-red-500 transition">محصولات</a>
+                <a href="#" class="hover:text-red-500 transition">فروشندگان</a>
+                <a href="#" class="hover:text-red-500 transition">تخفیف‌ها</a>
+            </nav>
+            <div class="flex gap-3">
+                <button class="px-4 py-2 border rounded-lg text-sm hover:bg-gray-50">ورود | ثبت نام</button>
+                <button class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">سبد خرید</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="min-h-screen container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-900 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center text-sm text-gray-400">
+            <p>© 2025 DigiShop - ساخته شده با جنگو و عشق ❤️</p>
+        </div>
+    </footer>
+
+</body>
+</html>
