@@ -184,3 +184,7 @@ INTERNAL_IPS = [
 NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 
 LOGIN_URL = '/admin/login/'
+
+
+MELIPAYAMAK_USERNAME = os.getenv('MELIPAYAMAK_USERNAME')
+MELIPAYAMAK_PASSWORD = os.getenv('MELIPAYAMAK_PASSWORD')

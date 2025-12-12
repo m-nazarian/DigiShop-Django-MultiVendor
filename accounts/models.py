@@ -54,11 +54,11 @@ class User(AbstractUser):
     full_name = models.CharField(_('full name'), max_length=150, blank=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
 
-    # برای نقش‌ها (بعدا برای سطوح دسترسی استفاده میشه)
+    # برای نقش‌ها
     is_verified = models.BooleanField(default=False, help_text=_("Is user phone verified?"))
 
     USERNAME_FIELD = 'phone_number'
-    REQUIRED_FIELDS = []  # برای superuser چه فیلدهای دیگری بپرسد؟ (هیچی فعلا)
+    REQUIRED_FIELDS = []
 
     objects = UserManager()
 
