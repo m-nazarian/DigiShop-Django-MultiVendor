@@ -1,10 +1,14 @@
-from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.core.cache import cache
 from django.contrib import messages
 from .models import User
 from .utils import send_otp_sms
 import random
+from .models import Address
+from .forms import AddressForm
+from products.models import Review
 
 
 def login_view(request):
@@ -76,3 +80,48 @@ def logout_view(request):
     logout(request)
     messages.info(request, 'با موفقیت خارج شدید.')
     return redirect('core:home')
+
+
+
+@login_required
+def dashboard_overview(request):
+    """صفحه اصلی داشبورد: نمایش آخرین سفارش‌ها و وضعیت کلی"""
+    recent_orders = request.user.orders.all()[:5]
+    return render(request, 'accounts/dashboard/overview.html', {'recent_orders': recent_orders})
+
+@login_required
+def address_list(request):
+    addresses = request.user.addresses.all()
+    return render(request, 'accounts/dashboard/address_list.html', {'addresses': addresses})
+
+@login_required
+def address_create(request):
+    if request.method == 'POST':
+        form = AddressForm(request.POST)
+        if form.is_valid():
+            address = form.save(commit=False)
+            address.user = request.user
+            address.save()
+            messages.success(request, 'آدرس جدید با موفقیت ثبت شد.')
+            return redirect('accounts:address_list')
+    else:
+        form = AddressForm()
+    return render(request, 'accounts/dashboard/address_form.html', {'form': form})
+
+@login_required
+def address_delete(request, pk):
+    address = get_object_or_404(Address, pk=pk, user=request.user)
+    address.delete()
+    messages.success(request, 'آدرس حذف شد.')
+    return redirect('accounts:address_list')
+
+
+@login_required
+def wishlist_view(request):
+    products = request.user.wishlist.all()
+    return render(request, 'accounts/dashboard/wishlist.html', {'products': products})
+
+@login_required
+def user_reviews(request):
+    reviews = Review.objects.filter(user=request.user)
+    return render(request, 'accounts/dashboard/user_reviews.html', {'reviews': reviews})

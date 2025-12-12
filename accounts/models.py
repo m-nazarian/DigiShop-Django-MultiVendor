@@ -113,3 +113,22 @@ class Vendor(models.Model):
 
     def __str__(self):
         return self.store_name
+
+
+class Address(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
+    title = models.CharField(_('Title'), max_length=50, help_text="مثال: خانه، محل کار")
+    recipient_name = models.CharField(_('Recipient Name'), max_length=100)
+    phone_number = models.CharField(_('Phone Number'), max_length=15)
+    province = models.CharField(_('Province'), max_length=50)  # استان
+    city = models.CharField(_('City'), max_length=50)  # شهر
+    full_address = models.TextField(_('Full Address'))
+    postal_code = models.CharField(_('Postal Code'), max_length=10)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.city}"

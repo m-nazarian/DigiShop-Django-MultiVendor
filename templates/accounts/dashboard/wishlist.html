@@ -1,0 +1,37 @@
+{% extends 'accounts/dashboard_base.html' %}
+{% load humanize %}
+
+{% block dashboard_content %}
+<h1 class="text-xl font-bold text-gray-800 mb-6">لیست علاقه‌مندی‌های من</h1>
+
+{% if products %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for product in products %}
+    <div class="bg-white p-4 rounded-xl border border-gray-200 hover:shadow-md transition group">
+        <a href="{{ product.get_absolute_url }}" class="block aspect-square bg-gray-50 rounded-lg mb-3 overflow-hidden">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition">
+            {% endif %}
+        </a>
+        <h3 class="font-bold text-sm text-gray-800 mb-2 line-clamp-2 h-10">
+            <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+        </h3>
+        <div class="flex justify-between items-center">
+            <span class="text-red-600 font-bold">{{ product.final_price|intcomma }} تومان</span>
+
+            <form action="{% url 'core:toggle_wishlist' product.slug %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="text-gray-400 hover:text-red-500">
+                    <svg class="w-5 h-5 fill-current text-red-500" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+    <p class="text-gray-500">لیست علاقه‌مندی‌های شما خالی است.</p>
+</div>
+{% endif %}
+{% endblock %}

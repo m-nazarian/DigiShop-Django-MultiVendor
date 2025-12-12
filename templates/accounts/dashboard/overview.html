@@ -1,0 +1,57 @@
+{% extends 'accounts/dashboard_base.html' %}
+{% load humanize %}
+
+{% block dashboard_content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
+        <h3 class="text-blue-600 font-bold mb-1">سفارش‌های جاری</h3>
+        <p class="text-2xl font-bold text-gray-800">0</p>
+    </div>
+    <div class="bg-green-50 p-6 rounded-xl border border-green-100">
+        <h3 class="text-green-600 font-bold mb-1">تحویل شده</h3>
+        <p class="text-2xl font-bold text-gray-800">0</p>
+    </div>
+    <div class="bg-purple-50 p-6 rounded-xl border border-purple-100">
+        <h3 class="text-purple-600 font-bold mb-1">علاقه‌مندی‌ها</h3>
+        <p class="text-2xl font-bold text-gray-800">0</p>
+    </div>
+</div>
+
+<h3 class="font-bold text-lg mb-4 text-gray-800">آخرین سفارش‌ها</h3>
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <table class="w-full text-sm text-right">
+        <thead class="bg-gray-50 text-gray-500">
+            <tr>
+                <th class="p-4">شماره سفارش</th>
+                <th class="p-4">تاریخ</th>
+                <th class="p-4">مبلغ کل</th>
+                <th class="p-4">وضعیت</th>
+                <th class="p-4">عملیات</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for order in recent_orders %}
+            <tr>
+                <td class="p-4 font-bold">#{{ order.id }}</td>
+                <td class="p-4 text-gray-500">{{ order.created_at|date:"Y/m/d" }}</td>
+                <td class="p-4 font-bold">{{ order.total_price|intcomma }} تومان</td>
+                <td class="p-4">
+                    {% if order.is_paid %}
+                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">پرداخت شده</span>
+                    {% else %}
+                        <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">در انتظار</span>
+                    {% endif %}
+                </td>
+                <td class="p-4">
+                    <a href="#" class="text-blue-500 hover:underline">جزئیات</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="p-8 text-center text-gray-500">هنوز سفارشی ثبت نکرده‌اید.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

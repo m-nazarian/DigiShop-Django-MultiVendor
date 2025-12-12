@@ -9,6 +9,7 @@ from .forms import OrderCreateForm
 from .cart import Cart
 from django.conf import settings
 from .zarinpal import ZarinPal
+from accounts.models import Address
 
 
 @require_POST
@@ -73,31 +74,42 @@ def order_create(request):
         return redirect('products:product_list')
 
     if request.method == 'POST':
-        form = OrderCreateForm(request.POST)
-        if form.is_valid():
-            # ساخت سفارش اولیه (هنوز موجودی کم نمیشه)
-            order = form.save(commit=False)
-            order.user = request.user
-            order.total_price = cart.get_total_price()
-            order.save()
+        # گرفتن ID آدرس انتخاب شده از فرم
+        address_id = request.POST.get('address_id')
 
-            # انتقال آیتم‌های سبد به OrderItem
-            for item in cart:
-                OrderItem.objects.create(
-                    order=order,
-                    product=item['product'],
-                    price=item['price'],  # قیمت ثابت شد
-                    quantity=item['quantity']
+        if address_id:
+            try:
+                # امنیت: مطمئن میشیم آدرس مال خود کاربره
+                address = Address.objects.get(id=address_id, user=request.user)
+
+                # ساخت سفارش با کپی کردن اطلاعات آدرس
+                order = Order.objects.create(
+                    user=request.user,
+                    full_name=address.recipient_name,
+                    phone_number=address.phone_number,
+                    # آدرس کامل رو به صورت رشته ذخیره میکنیم (Snapshot)
+                    address=f"{address.province}، {address.city}، {address.full_address} - کدپستی: {address.postal_code}",
+                    total_price=cart.get_total_price()
                 )
 
-            # سبد خالی میشه
-            cart.clear()
+                # انتقال آیتم‌های سبد به OrderItem
+                for item in cart:
+                    OrderItem.objects.create(
+                        order=order,
+                        product=item['product'],
+                        price=item['price'],
+                        quantity=item['quantity']
+                    )
 
-            return redirect('orders:request_payment', order_id=order.id)
-    else:
-        form = OrderCreateForm()
+                cart.clear()
+                return redirect('orders:request_payment', order_id=order.id)
 
-    return render(request, 'orders/order_create.html', {'cart': cart, 'form': form})
+            except Address.DoesNotExist:
+                pass
+
+    # آدرس‌های کاربر رو میفرستیم به قالب
+    user_addresses = request.user.addresses.all()
+    return render(request, 'orders/order_create.html', {'cart': cart, 'user_addresses': user_addresses})
 
 
 

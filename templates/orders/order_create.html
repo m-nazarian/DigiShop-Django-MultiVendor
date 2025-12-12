@@ -3,34 +3,80 @@
 
 {% block content %}
 <div class="max-w-4xl mx-auto py-10 px-4">
-    <h1 class="text-2xl font-bold mb-6">نهایی‌سازی سفارش</h1>
-    <div class="grid md:grid-cols-2 gap-8">
-        <div class="bg-white p-6 rounded-xl shadow-sm border">
-            <h2 class="font-bold mb-4">اطلاعات ارسال</h2>
-            <form method="post">
+    <h1 class="text-2xl font-bold mb-6 flex items-center gap-2">
+        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        انتخاب آدرس و پرداخت
+    </h1>
+
+    <div class="grid md:grid-cols-3 gap-8">
+        <div class="md:col-span-2">
+            <form method="post" id="payment-form">
                 {% csrf_token %}
-                <div class="space-y-4">
-                    {{ form.as_p }}
-                </div>
-                <button type="submit" class="w-full mt-6 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">
-                    پرداخت و ثبت نهایی
-                </button>
+
+                {% if user_addresses %}
+                    <div class="space-y-4 mb-6">
+                        <h2 class="font-bold text-gray-700 mb-2">لطفا آدرس تحویل سفارش را انتخاب کنید:</h2>
+
+                        {% for address in user_addresses %}
+                        <label class="block relative">
+                            <input type="radio" name="address_id" value="{{ address.id }}" class="peer sr-only" {% if forloop.first %}checked{% endif %}>
+                            <div class="bg-white p-4 rounded-xl border-2 border-gray-200 cursor-pointer peer-checked:border-green-500 peer-checked:bg-green-50 transition hover:border-gray-300">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-bold text-gray-800">{{ address.title }}</span>
+                                    <span class="text-xs text-gray-500">{{ address.city }}</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-2 leading-6">{{ address.full_address }}</p>
+                                <div class="text-xs text-gray-400 flex gap-4">
+                                    <span>گیرنده: {{ address.recipient_name }}</span>
+                                    <span>تماس: {{ address.phone_number }}</span>
+                                </div>
+                            </div>
+                            <div class="absolute top-4 left-4 w-6 h-6 bg-green-500 rounded-full items-center justify-center text-white hidden peer-checked:flex">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="bg-yellow-50 border border-yellow-200 p-6 rounded-xl text-center mb-6">
+                        <p class="text-yellow-700 font-bold mb-2">هیچ آدرسی ثبت نشده است!</p>
+                        <p class="text-sm text-yellow-600 mb-4">برای ثبت سفارش ابتدا باید آدرس خود را ثبت کنید.</p>
+                        <a href="{% url 'accounts:address_create' %}?next={% url 'orders:order_create' %}" class="inline-block px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition">
+                            افزودن آدرس جدید
+                        </a>
+                    </div>
+                {% endif %}
+
+                {% if user_addresses %}
+                    <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 shadow-lg shadow-green-200 transition text-lg flex items-center justify-center gap-2">
+                        <span>تایید و پرداخت آنلاین</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                {% else %}
+                    <button disabled class="w-full bg-gray-300 text-gray-500 py-4 rounded-xl font-bold cursor-not-allowed">
+                        تایید و پرداخت آنلاین
+                    </button>
+                {% endif %}
             </form>
         </div>
 
-        <div class="bg-gray-50 p-6 rounded-xl border h-fit">
-            <h2 class="font-bold mb-4">خلاصه سفارش</h2>
-            <ul class="space-y-3 mb-4 text-sm">
-                {% for item in cart %}
-                <li class="flex justify-between">
-                    <span>{{ item.product.name }} ({{ item.quantity }})</span>
-                    <span>{{ item.total_price|intcomma }}</span>
-                </li>
-                {% endfor %}
-            </ul>
-            <div class="border-t pt-4 font-bold text-xl flex justify-between">
-                <span>مبلغ کل:</span>
-                <span class="text-red-600">{{ cart.get_total_price|intcomma }} تومان</span>
+        <div class="md:col-span-1">
+            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm sticky top-24">
+                <h2 class="font-bold mb-4 text-gray-800 border-b border-gray-100 pb-2">فاکتور نهایی</h2>
+                <ul class="space-y-3 mb-4 text-sm max-h-60 overflow-y-auto">
+                    {% for item in cart %}
+                    <li class="flex justify-between items-center">
+                        <span class="text-gray-600 truncate w-2/3">{{ item.product.name }} <span class="text-xs text-gray-400">({{ item.quantity }})</span></span>
+                        <span class="font-bold text-gray-800">{{ item.total_price|intcomma }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="border-t border-gray-100 pt-4">
+                    <div class="flex justify-between items-center text-lg font-bold">
+                        <span>مبلغ قابل پرداخت:</span>
+                        <span class="text-red-600">{{ cart.get_total_price|intcomma }} <span class="text-sm">تومان</span></span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
