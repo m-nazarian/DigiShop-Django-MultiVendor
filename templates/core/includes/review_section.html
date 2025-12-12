@@ -1,0 +1,111 @@
+<div id="review-section" class="grid grid-cols-1 md:grid-cols-12 gap-8 animate-fade-in">
+    <div class="md:col-span-4 sticky top-4 self-start">
+        <div class="bg-gray-50 p-6 rounded-xl border border-gray-100">
+            <h4 class="font-bold text-lg mb-4">ثبت دیدگاه جدید</h4>
+
+            {% if user.is_authenticated %}
+                <form hx-post="{% url 'core:add_review' product.slug %}"
+                      hx-target="#review-section"
+                      hx-swap="outerHTML">
+                    {% csrf_token %}
+
+                    <label class="block text-xs font-bold text-gray-700 mb-2">امتیاز به محصول:</label>
+                    {{ form.score }}
+
+                    <label class="block text-xs font-bold text-gray-700 mb-2 mt-4">وضعیت پیشنهاد:</label>
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="recommendation" value="recommended" class="peer sr-only">
+                            <div class="border rounded-lg p-2 text-center text-xs text-gray-500 hover:bg-white peer-checked:border-green-500 peer-checked:text-green-600 peer-checked:bg-green-50 transition">
+                                👍 پیشنهاد می‌کنم
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="recommendation" value="no_idea" class="peer sr-only" checked>
+                            <div class="border rounded-lg p-2 text-center text-xs text-gray-500 hover:bg-white peer-checked:border-gray-500 peer-checked:text-gray-800 peer-checked:bg-gray-100 transition">
+                                😐 نظری ندارم
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="recommendation" value="not_recommended" class="peer sr-only">
+                            <div class="border rounded-lg p-2 text-center text-xs text-gray-500 hover:bg-white peer-checked:border-red-500 peer-checked:text-red-600 peer-checked:bg-red-50 transition">
+                                👎 پیشنهاد نمی‌کنم
+                            </div>
+                        </label>
+                    </div>
+
+                    <label class="block text-xs font-bold text-gray-700 mb-2">متن نظر:</label>
+                    {{ form.comment }}
+
+                    <button type="submit" class="w-full mt-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow-md font-bold text-sm">
+                        ثبت دیدگاه
+                    </button>
+                </form>
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-gray-500 text-sm mb-3">برای ثبت نظر باید وارد شوید.</p>
+                    <a href="/admin/login/" class="block w-full py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 text-center transition">ورود به حساب</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="md:col-span-8 space-y-6">
+        <h4 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+            دیدگاه‌های کاربران
+            <span class="bg-gray-100 text-sm px-2 py-0.5 rounded-full text-gray-500">{{ reviews.count }}</span>
+        </h4>
+
+        {% for review in reviews %}
+        <div class="border-b border-gray-100 pb-6 last:border-0">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 flex items-center justify-center font-bold text-xs">
+                    {{ review.user.phone_number|slice:"-4:" }}
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <div class="text-sm font-bold text-gray-800">کاربر دیجی‌شاپ</div>
+                        {% if review.is_buyer %}
+                        <span class="bg-gray-100 text-gray-500 text-[10px] px-1.5 py-0.5 rounded border border-gray-200 flex items-center gap-1">
+                            <span class="w-1 h-1 rounded-full bg-gray-500"></span> خریدار محصول
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="text-xs text-gray-400">{{ review.created_at|date:"d F Y" }}</div>
+                </div>
+
+                <div class="mr-auto px-2 py-1 {% if review.score >= 4 %}bg-green-50 text-green-700 border-green-200{% else %}bg-yellow-50 text-yellow-700 border-yellow-200{% endif %} text-xs rounded border flex items-center gap-1 font-bold">
+                     {{ review.score }} <span class="text-[10px]">★</span>
+                </div>
+            </div>
+
+            {% if review.recommendation == 'recommended' %}
+                <div class="mb-3 flex items-center gap-2 text-xs text-green-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+                    خرید این محصول را پیشنهاد می‌کنم
+                </div>
+            {% elif review.recommendation == 'not_recommended' %}
+                <div class="mb-3 flex items-center gap-2 text-xs text-red-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l2.94 1.154A1 1 0 0117.153 5v8.318c0 .193-.053.38-.153.541l-4.225 6.76c-.463.74-1.57.51-1.638-.363l-.441-5.717A1 1 0 0010 14z"></path></svg>
+                    خرید این محصول را پیشنهاد نمی‌کنم
+                </div>
+            {% endif %}
+
+            <p class="text-gray-600 text-sm leading-7 mb-4 pr-2">
+                {{ review.comment|linebreaksbr }}
+            </p>
+
+            <div class="flex items-center justify-end gap-4 border-t border-gray-50 pt-2">
+                <span class="text-xs text-gray-400">آیا این دیدگاه مفید بود؟</span>
+                {% include 'core/includes/review_actions.html' %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+            <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            <p class="text-gray-500 font-medium">هنوز هیچ دیدگاهی برای این محصول ثبت نشده است.</p>
+            <p class="text-sm text-gray-400 mt-1">اولین نفر باشید که نظر می‌دهید!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>

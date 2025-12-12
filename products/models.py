@@ -148,20 +148,34 @@ class ProductImage(models.Model):
 
 
 class Review(models.Model):
+    class Recommendation(models.TextChoices):
+        RECOMMENDED = 'recommended', _('I suggest this product')
+        NOT_RECOMMENDED = 'not_recommended', _('I do not suggest this product')
+        NO_IDEA = 'no_idea', _('No opinion')
+
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    score = models.IntegerField(
-        default=5,
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
-        verbose_name=_('Score')
-    )
+    score = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(5)])
     comment = models.TextField(_('Comment'))
+
+    recommendation = models.CharField(
+        max_length=20,
+        choices=Recommendation.choices,
+        default=Recommendation.NO_IDEA
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # لایک و دیس‌لایک
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_reviews', blank=True)
+    dislikes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='disliked_reviews', blank=True)
 
     class Meta:
         ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.user} on {self.product}"
+
+    @property
+    def is_buyer(self):
+        return True

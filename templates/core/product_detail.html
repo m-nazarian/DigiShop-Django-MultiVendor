@@ -70,10 +70,6 @@
 
     </div>
 
-
-
-
-
     <div class="lg:col-span-5">
         {% if product.brand %}
         <a href="#" class="text-blue-500 text-sm font-bold mb-2 inline-block">{{ product.brand.name }} / {{ product.brand.slug }}</a>
@@ -179,45 +175,9 @@
     </div>
 
     <div x-show="activeTab === 'reviews'" style="display: none;">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-            <div class="md:col-span-4 sticky top-4 self-start">
-                <div class="bg-gray-50 p-6 rounded-xl">
-                    <h4 class="font-bold text-lg mb-2">امتیاز محصول</h4>
-                    <div class="text-4xl font-bold text-gray-900 mb-1">{{ avg_rating }} <span class="text-lg text-gray-400 font-normal">از 5</span></div>
-                    <p class="text-xs text-gray-500 mb-6">از مجموع {{ reviews.count }} رای ثبت شده</p>
-                    <button class="w-full py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition">ثبت دیدگاه جدید</button>
-                </div>
-            </div>
-
-            <div class="md:col-span-8 space-y-6">
-                {% for review in reviews %}
-                <div class="border-b border-gray-100 pb-6">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
-                            {{ review.user.phone_number|slice:"-4:" }}
-                        </div>
-                        <div>
-                            <div class="text-sm font-bold text-gray-800">کاربر دیجی‌شاپ</div>
-                            <div class="text-xs text-gray-400">{{ review.created_at|date:"d F Y" }}</div>
-                        </div>
-                        <div class="mr-auto px-2 py-1 bg-green-50 text-green-700 text-xs rounded border border-green-100">
-                             {{ review.score }}.0 ★
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm leading-7 mb-4">
-                        {{ review.comment }}
-                    </p>
-                    <div class="flex items-center gap-4 text-xs text-gray-400">
-                        <span>آیا این دیدگاه مفید بود؟</span>
-                        <button class="flex items-center gap-1 hover:text-green-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg> {{ review.likes.count }}</button>
-                    </div>
-                </div>
-                {% empty %}
-                <p class="text-gray-500">هنوز دیدگاهی ثبت نشده است.</p>
-                {% endfor %}
-            </div>
-        </div>
+        {% include 'core/includes/review_section.html' %}
     </div>
+
 </div>
 
 {% endblock %}
