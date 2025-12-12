@@ -1,0 +1,95 @@
+{% load humanize %}
+
+<div id="cart-container" class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
+
+    {% if cart|length > 0 %}
+        <div class="lg:col-span-2 space-y-4">
+            {% for item in cart %}
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex gap-4 items-center relative">
+
+                <a href="{{ item.product.get_absolute_url }}" class="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
+                    {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" class="w-full h-full object-contain">
+                    {% endif %}
+                </a>
+
+                <div class="flex-1 flex flex-col justify-between h-24 py-1">
+                    <div>
+                        <h3 class="font-bold text-gray-800 mb-1 text-sm md:text-base">
+                            <a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a>
+                        </h3>
+                        {% if item.product.brand %}
+                        <div class="text-xs text-gray-500">برند: {{ item.product.brand.name }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex justify-between items-end">
+
+                        <div class="flex items-center border border-gray-200 rounded-lg h-9">
+                            <button hx-post="{% url 'orders:cart_update_quantity' item.product.id 'increment' %}"
+                                    hx-target="#cart-container"
+                                    hx-swap="outerHTML"
+                                    {% if item.quantity >= item.product.stock %}disabled class="px-3 h-full text-gray-300 cursor-not-allowed rounded-r-lg bg-gray-50"{% else %}class="px-3 h-full text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded-r-lg transition"{% endif %}>
+                                +
+                            </button>
+
+                            <span class="px-2 text-sm font-bold text-gray-800 w-8 text-center select-none">{{ item.quantity }}</span>
+
+                            <button hx-post="{% url 'orders:cart_update_quantity' item.product.id 'decrement' %}"
+                                    hx-target="#cart-container"
+                                    hx-swap="outerHTML"
+                                    class="px-3 h-full text-gray-600 hover:text-red-600 hover:bg-gray-50 rounded-l-lg transition">
+                                -
+                            </button>
+                        </div>
+
+                        <div class="text-lg font-bold text-gray-900">{{ item.total_price|intcomma }} <span class="text-xs font-normal">تومان</span></div>
+                    </div>
+                </div>
+
+                <button hx-post="{% url 'orders:cart_remove_htmx' item.product.id %}"
+                        hx-target="#cart-container"
+                        hx-swap="outerHTML"
+                        class="absolute top-4 left-4 text-gray-300 hover:text-red-500 transition p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 sticky top-24">
+                <h3 class="font-bold text-lg mb-4 text-gray-700">خلاصه سفارش</h3>
+
+                <div class="flex justify-between mb-3 text-sm text-gray-600">
+                    <span>تعداد کالاها</span>
+                    <span>{{ cart|length }} عدد</span>
+                </div>
+
+                <div class="flex justify-between mb-6 text-sm text-gray-600">
+                    <span>جمع کل کالاها</span>
+                    <span class="text-gray-900">{{ cart.get_total_price|intcomma }} تومان</span>
+                </div>
+
+                <div class="border-t border-gray-100 pt-4 mb-6 flex justify-between items-center">
+                    <span class="font-bold text-gray-800">مبلغ قابل پرداخت</span>
+                    <span class="font-bold text-xl text-red-600">{{ cart.get_total_price|intcomma }} <span class="text-xs text-gray-500">تومان</span></span>
+                </div>
+
+                <a href="{% url 'orders:order_create' %}" class="block w-full py-3 bg-red-600 hover:bg-red-700 text-white text-center font-bold rounded-xl shadow-lg shadow-red-200 transition">
+                    ثبت سفارش و پرداخت
+                </a>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="lg:col-span-3 text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
+            <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            </div>
+            <h2 class="text-xl font-bold text-gray-800 mb-2">سبد خرید شما خالی است!</h2>
+            <p class="text-gray-500 mb-8">می‌توانید برای مشاهده محصولات بیشتر به صفحه اصلی بروید.</p>
+            <a href="{% url 'core:home' %}" class="px-8 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition">رفتن به فروشگاه</a>
+        </div>
+    {% endif %}
+</div>

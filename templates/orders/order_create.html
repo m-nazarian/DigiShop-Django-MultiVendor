@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-10 px-4">
+    <h1 class="text-2xl font-bold mb-6">نهایی‌سازی سفارش</h1>
+    <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border">
+            <h2 class="font-bold mb-4">اطلاعات ارسال</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    {{ form.as_p }}
+                </div>
+                <button type="submit" class="w-full mt-6 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">
+                    پرداخت و ثبت نهایی
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-gray-50 p-6 rounded-xl border h-fit">
+            <h2 class="font-bold mb-4">خلاصه سفارش</h2>
+            <ul class="space-y-3 mb-4 text-sm">
+                {% for item in cart %}
+                <li class="flex justify-between">
+                    <span>{{ item.product.name }} ({{ item.quantity }})</span>
+                    <span>{{ item.total_price|intcomma }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="border-t pt-4 font-bold text-xl flex justify-between">
+                <span>مبلغ کل:</span>
+                <span class="text-red-600">{{ cart.get_total_price|intcomma }} تومان</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

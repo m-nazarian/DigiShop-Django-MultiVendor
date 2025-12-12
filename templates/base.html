@@ -39,7 +39,7 @@
             </nav>
             <div class="flex gap-3">
                 <button class="px-4 py-2 border rounded-lg text-sm hover:bg-gray-50">ورود | ثبت نام</button>
-                <button class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">سبد خرید</button>
+                {% include 'orders/includes/cart_dropdown.html' %}
             </div>
         </div>
     </header>
