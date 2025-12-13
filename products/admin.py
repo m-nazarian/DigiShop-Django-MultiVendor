@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from unfold.admin import ModelAdmin, TabularInline
-from .models import Category, Brand, Product, ProductImage, Category, Review, ProductAttribute
+from .models import Brand, Product, ProductImage, Category, Review, ProductAttribute, MegaMenuColumn, MegaMenuItem
 from mptt.admin import DraggableMPTTAdmin
 
 
@@ -13,6 +13,11 @@ class ProductImageInline(TabularInline):
 
 class ProductAttributeInline(admin.TabularInline):
     model = ProductAttribute
+    extra = 1
+
+
+class MegaMenuItemInline(admin.TabularInline):
+    model = MegaMenuItem
     extra = 1
 
 
@@ -104,3 +109,10 @@ class ProductAdmin(ModelAdmin):
 
     wishlist_count.short_description = "❤️ Likes"
     wishlist_count.admin_order_field = 'wishlist'  # قابلیت سورت کردن بر اساس تعداد لایک
+
+
+@admin.register(MegaMenuColumn)
+class MegaMenuColumnAdmin(ModelAdmin):
+    list_display = ['title', 'category', 'order']
+    list_filter = ['category']
+    inlines = [MegaMenuItemInline]

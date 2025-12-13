@@ -45,9 +45,9 @@ class Category(MPTTModel):
 
 
 class Brand(models.Model):
-    name = models.CharField(max_length=100, verbose_name='نام برند')
-    slug = models.SlugField(unique=True, verbose_name='اسلاگ')
-    logo = models.ImageField(upload_to='brands/', blank=True, null=True, verbose_name='لوگو')
+    name = models.CharField(_('نام برند'), max_length=100)
+    slug = models.SlugField(_('اسلاگ'), unique=True)
+    logo = models.ImageField(_('لوگو'), upload_to='brands/', blank=True, null=True)
 
     class Meta:
         verbose_name = 'برند'
@@ -201,3 +201,38 @@ class ProductAttribute(models.Model):
 
     def __str__(self):
         return f"{self.category.name} - {self.label}"
+
+
+class MegaMenuColumn(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='menu_columns',
+                                 verbose_name='نمایش در دسته')
+    title = models.CharField(max_length=100, verbose_name='عنوان ستون', help_text="مثال: بر اساس برند، بر اساس کاربری")
+    order = models.PositiveIntegerField(default=0, verbose_name='ترتیب نمایش')
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'ستون مگا‌منو'
+        verbose_name_plural = 'ستون‌های مگا‌منو'
+
+    def __str__(self):
+        return f"{self.category.name} - {self.title}"
+
+
+class MegaMenuItem(models.Model):
+    column = models.ForeignKey(MegaMenuColumn, on_delete=models.CASCADE, related_name='items', verbose_name='ستون والد')
+    title = models.CharField(max_length=100, verbose_name='عنوان لینک', help_text="مثال: لپ‌تاپ گیمینگ، سری Zenbook")
+
+    url = models.CharField(max_length=500, verbose_name='لینک مقصد',
+                           help_text="مثال: /products/laptop/?brand=asus یا /products/laptop/?usage=gaming")
+
+    image = models.ImageField(upload_to='menu_icons/', blank=True, null=True, verbose_name='آیکون')
+
+    order = models.PositiveIntegerField(default=0, verbose_name='ترتیب')
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'آیتم منو'
+        verbose_name_plural = 'آیتم‌های منو'
+
+    def __str__(self):
+        return self.title
