@@ -5,31 +5,34 @@ from accounts.models import Vendor
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.urls import reverse
+from mptt.models import MPTTModel, TreeForeignKey
 
 
-class Category(models.Model):
+class Category(MPTTModel):
     """
     دسته بندی درختی (Hierarchical Category)
     مثال: الکترونیک -> موبایل -> سامسونگ
     """
     name = models.CharField(max_length=100, verbose_name='نام دسته‌بندی')
     slug = models.SlugField(max_length=150, unique=True, allow_unicode=True, verbose_name='اسلاگ (آدرس)')
-    parent = models.ForeignKey(
+    parent = TreeForeignKey(
         'self',
         on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name='children',
-        verbose_name= 'دسته بندی والد'
+        verbose_name= 'دسته مادر'
     )
     icon = models.ImageField(upload_to='categories/icons/', blank=True, null=True, verbose_name='آیکون')
     image = models.ImageField(upload_to='categories/images/', blank=True, null=True, verbose_name='تصویر')
     is_active = models.BooleanField(default=True, verbose_name='فعال')
 
+    class MPTTMeta:
+        order_insertion_by = ['name']
+
     class Meta:
         verbose_name = 'دسته‌بندی'
         verbose_name_plural = 'دسته‌بندی‌ها'
-        ordering = ['name']
 
     def __str__(self):
         # نمایش به صورت مسیر کامل: الکترونیک > موبایل
