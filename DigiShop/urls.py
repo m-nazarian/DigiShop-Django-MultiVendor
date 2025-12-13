@@ -16,7 +16,8 @@ urlpatterns = [
     path('', include('core.urls')),
     path('orders/', include('orders.urls')),
     path('accounts/', include('accounts.urls')),
-    
+    path('products/', include('products.urls')),
+
 ]
 
 # تنظیمات نمایش فایل‌های استاتیک و مدیا در حالت DEBUG

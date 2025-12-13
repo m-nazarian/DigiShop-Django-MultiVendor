@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from unfold.admin import ModelAdmin, TabularInline
-from .models import Category, Brand, Product, ProductImage
+from .models import Category, Brand, Product, ProductImage, Category, Review, ProductAttribute
 
 
 class ProductImageInline(TabularInline):
@@ -10,12 +10,18 @@ class ProductImageInline(TabularInline):
     tab = True  # نمایش به صورت تب در Unfold
 
 
+class ProductAttributeInline(admin.TabularInline):
+    model = ProductAttribute
+    extra = 1
+
+
 @admin.register(Category)
 class CategoryAdmin(ModelAdmin):
     list_display = ['name', 'parent', 'is_active', 'image_preview']
     search_fields = ['name']
     prepopulated_fields = {'slug': ('name',)}
     list_filter = ['is_active', 'parent']
+    inlines = [ProductAttributeInline]
 
     def image_preview(self, obj):
         if obj.icon:
@@ -43,7 +49,6 @@ class BrandAdmin(ModelAdmin):
 class ProductAdmin(ModelAdmin):
     # 1. اضافه کردن wishlist_count به لیست نمایش
     list_display = ['name', 'price_display', 'vendor', 'category', 'status', 'wishlist_count', 'cover_preview']
-
     list_filter = ['status', 'is_available', 'created_at', 'vendor', 'category']
     search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}
@@ -71,6 +76,10 @@ class ProductAdmin(ModelAdmin):
             "classes": ("collapse",),  # به صورت جمع‌شده نمایش داده میشه
         }),
     )
+
+    class Media:
+        js = ('js/admin_specifications.js',)
+
 
     def price_display(self, obj):
         return f"{obj.price:,} Toman"

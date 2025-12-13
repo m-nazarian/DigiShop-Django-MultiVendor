@@ -184,3 +184,17 @@ class Review(models.Model):
     @property
     def is_buyer(self):
         return True
+
+
+class ProductAttribute(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='attributes',
+                                 verbose_name='دسته‌بندی')
+    key = models.CharField(max_length=50, verbose_name='نام ویژگی (انگلیسی)', help_text="مثال: ram, color, weight")
+    label = models.CharField(max_length=50, verbose_name='عنوان نمایشی (فارسی)', help_text="مثال: حافظه رم، رنگ محصول")
+
+    class Meta:
+        verbose_name = 'ویژگی محصول'
+        verbose_name_plural = 'ویژگی‌های محصولات (سازنده فرم)'
+
+    def __str__(self):
+        return f"{self.category.name} - {self.label}"
