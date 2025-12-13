@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}لیست محصولات{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+
+    <nav class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+        <a href="{% url 'core:home' %}" class="hover:text-red-600">خانه</a>
+        <span>/</span>
+        <span class="font-bold text-gray-800">محصولات</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+        <aside class="lg:col-span-1">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sticky top-24">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg text-gray-800">فیلترها</h3>
+                    <a href="{% url 'products:product_list' %}" class="text-xs text-red-500 hover:underline">حذف فیلترها</a>
+                </div>
+
+                <form method="get" action=".">
+                    {% if request.GET.category %}
+                    <input type="hidden" name="category" value="{{ request.GET.category }}">
+                    {% endif %}
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">جستجو در نتایج:</label>
+                        <div class="relative">
+                            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="نام محصول..." class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-red-500">
+                            <button type="submit" class="absolute left-2 top-2 text-gray-400 hover:text-red-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-6 flex items-center justify-between">
+                        <label for="available" class="text-sm font-bold text-gray-700 cursor-pointer">فقط کالاهای موجود</label>
+                        <input type="checkbox" name="available" id="available" value="1" {% if request.GET.available == '1' %}checked{% endif %} class="w-4 h-4 text-red-600 rounded focus:ring-red-500 border-gray-300">
+                    </div>
+
+                    {% if brands %}
+                    <div class="mb-6 border-t border-gray-100 pt-4">
+                        <h4 class="font-bold text-sm text-gray-800 mb-3">برند</h4>
+                        <div class="space-y-2 max-h-48 overflow-y-auto pl-2">
+                            {% for brand in brands %}
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" name="brand" value="{{ brand.slug }}"
+                                       {% if brand.slug in request.GET.getlist.brand %}checked{% endif %}
+                                       class="rounded text-red-600 focus:ring-red-500 border-gray-300">
+                                <span class="text-sm text-gray-600 group-hover:text-gray-900">{{ brand.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition shadow shadow-red-200">
+                        اعمال فیلترها
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="lg:col-span-3">
+
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                <span class="text-sm text-gray-500 mb-2 sm:mb-0">
+                    نمایش <span class="font-bold text-gray-900">{{ products.count }}</span> کالا
+                </span>
+
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-gray-500">مرتب‌سازی:</span>
+                    <select onchange="location = this.value;" class="border-none bg-transparent font-bold text-gray-800 focus:ring-0 cursor-pointer">
+                        <option value="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}sort=newest">جدیدترین</option>
+                        <option value="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}sort=cheapest">ارزان‌ترین</option>
+                        <option value="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}sort=expensive">گران‌ترین</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for product in products %}
+                <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 overflow-hidden group flex flex-col">
+
+                    <div class="relative aspect-square bg-gray-50 overflow-hidden p-4">
+                        <a href="{{ product.get_absolute_url }}" class="block w-full h-full">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500">
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">بدون تصویر</div>
+                            {% endif %}
+                        </a>
+
+                        {% if product.discount_price %}
+                        <span class="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full">
+                            تخفیف ویژه
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="p-4 flex flex-col flex-1">
+                        <div class="mb-2">
+                            {% if product.category %}
+                            <span class="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{{ product.category.name }}</span>
+                            {% endif %}
+                        </div>
+
+                        <h3 class="font-bold text-gray-800 text-sm mb-3 line-clamp-2 h-10 leading-5">
+                            <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                        </h3>
+
+                        <div class="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between">
+                            <div class="flex flex-col items-start">
+                                {% if product.stock > 0 %}
+                                    {% if product.discount_price %}
+                                        <span class="text-xs text-gray-400 line-through">{{ product.price|intcomma }}</span>
+                                        <span class="text-lg font-bold text-gray-900">{{ product.discount_price|intcomma }} <span class="text-xs font-normal">تومان</span></span>
+                                    {% else %}
+                                        <span class="text-lg font-bold text-gray-900">{{ product.price|intcomma }} <span class="text-xs font-normal">تومان</span></span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-sm font-bold text-gray-400">ناموجود</span>
+                                {% endif %}
+                            </div>
+
+                            {% if product.stock > 0 %}
+                            <button hx-post="{% url 'orders:cart_add' product.id %}"
+                                    hx-target="#cart-dropdown-container"
+                                    hx-swap="outerHTML"
+                                    class="w-10 h-10 bg-red-50 text-red-600 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition shadow-sm active:scale-90">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-20 bg-white rounded-xl border-2 border-dashed border-gray-200">
+                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p class="text-gray-500 text-lg font-bold">هیچ محصولی با این مشخصات یافت نشد.</p>
+                    <a href="{% url 'products:product_list' %}" class="text-red-600 hover:underline mt-2 inline-block">نمایش همه محصولات</a>
+                </div>
+                {% endfor %}
+            </div>
+
+        </main>
+    </div>
+</div>
+{% endblock %}

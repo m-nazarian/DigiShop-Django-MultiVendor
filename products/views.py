@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, render
-from .models import ProductAttribute, Category, Product
+from .models import ProductAttribute, Category, Product, Brand
 
 
 @staff_member_required
@@ -27,31 +27,42 @@ def get_category_attributes(request, category_id):
 
 
 def product_list(request):
-    """
-    صفحه نمایش محصولات با قابلیت فیلتر بر اساس کوئری استرینگ
-    """
-    products = Product.objects.filter(status=Product.Status.PUBLISHED, is_available=True)
+    products = Product.objects.filter(status=Product.Status.PUBLISHED)
 
-    # --- فیلترهای ساده ---
+    # --- فیلترهای پایه ---
 
-    # 1. فیلتر بر اساس دسته‌بندی (Slug)
+    # 1. دسته‌بندی
     category_slug = request.GET.get('category')
     if category_slug:
-        # استفاده از get_descendants برای گرفتن محصولات زیرمجموعه هم
         category = get_object_or_404(Category, slug=category_slug)
         products = products.filter(category__in=category.get_descendants(include_self=True))
 
-    # 2. فیلتر بر اساس برند
-    brand_slug = request.GET.get('brand')
-    if brand_slug:
-        products = products.filter(brand__slug=brand_slug)
+    # 2. برند (چند انتخابی)
+    brands_slugs = request.GET.getlist('brand')
+    if brands_slugs:
+        products = products.filter(brand__slug__in=brands_slugs)
 
     # 3. جستجو
     search_query = request.GET.get('q')
     if search_query:
         products = products.filter(name__icontains=search_query)
 
+    # 4. موجودی
+    if request.GET.get('available') == '1':
+        products = products.filter(stock__gt=0)
+
+    # 5. مرتب‌سازی
+    sort_by = request.GET.get('sort')
+    if sort_by == 'cheapest':
+        products = products.order_by('price')
+    elif sort_by == 'expensive':
+        products = products.order_by('-price')
+    else:
+        products = products.order_by('-created_at')
+
+    # --- ارسال دیتای مورد نیاز به قالب ---
     context = {
         'products': products,
+        'brands': Brand.objects.all(),
     }
     return render(request, 'products/product_list.html', context)
