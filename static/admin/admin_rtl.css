@@ -1,0 +1,88 @@
+/* =========================================
+   1. تعریف فونت وزیرمتن (Local)
+   ========================================= */
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('../fonts/Vazirmatn-Regular.woff2') format('woff2'),
+         url('../fonts/Vazirmatn-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('../fonts/Vazirmatn-Bold.woff2') format('woff2'),
+         url('../fonts/Vazirmatn-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* =========================================
+   2. اعمال فونت به بدنه و متون (هوشمند)
+   ========================================= */
+/* به جای div و span خالی، کلاس‌های جنگو و تلویند را هدف می‌گیریم */
+body,
+.font-sans,
+p, h1, h2, h3, h4, h5, h6,
+input, textarea, select, button, label,
+td, th, a, li, blockquote {
+    font-family: 'Vazirmatn', sans-serif !important;
+
+    /* اعداد فارسی */
+    -moz-font-feature-settings: "ss01";
+    -webkit-font-feature-settings: "ss01";
+    font-feature-settings: "ss01";
+}
+
+/* =========================================
+   3. دیوار آتش برای آیکون‌ها (The Firewall) ⛔
+   ========================================= */
+/* پکیج Unfold از Material Symbols استفاده می‌کند.
+   این بخش هرگونه فونت وزیر را از روی آیکون‌ها می‌کَنَد و فونت اصلی را برمی‌گرداند. */
+
+.material-symbols-outlined,
+.material-icons,
+.material-icons-outlined,
+i[class*="material-"],
+span[class*="material-"] {
+    /* بازگرداندن فونت آیکون گوگل */
+    font-family: 'Material Symbols Outlined' !important;
+
+    /* غیرفعال کردن اعداد فارسی برای آیکون (چون کد آیکون خراب میشه) */
+    font-feature-settings: normal !important;
+    -webkit-font-feature-settings: normal !important;
+
+    /* جهت آیکون همیشه باید چپ‌چین باشد */
+    direction: ltr !important;
+
+    /* جلوگیری از بولد شدن ناخواسته */
+    font-weight: normal !important;
+    font-style: normal !important;
+    display: inline-block !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    word-wrap: normal !important;
+    white-space: nowrap !important;
+}
+
+/* =========================================
+   4. اصلاحات راست‌چین (RTL Fixes)
+   ========================================= */
+html[dir="rtl"] table th,
+html[dir="rtl"] table td,
+html[dir="rtl"] .text-left {
+    text-align: right !important;
+}
+
+html[dir="rtl"] th,
+html[dir="rtl"] td {
+    padding-right: 1rem !important;
+    padding-left: 0.5rem !important;
+}
+
+/* اصلاح جهت فلش‌های منوهای تودرتو */
+html[dir="rtl"] .unfold-sidebar-item-arrow {
+    transform: rotate(180deg);
+}

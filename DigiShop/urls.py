@@ -3,6 +3,13 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+
+# --- تنظیمات فارسی سازی پنل ---
+admin.site.site_header = "مدیریت فروشگاه دیجی‌شاپ"
+admin.site.site_title = "پنل مدیریت"
+admin.site.index_title = "خوش آمدید به داشبورد مدیریت"
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("__reload__/", include("django_browser_reload.urls")),

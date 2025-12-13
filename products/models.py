@@ -12,23 +12,23 @@ class Category(models.Model):
     دسته بندی درختی (Hierarchical Category)
     مثال: الکترونیک -> موبایل -> سامسونگ
     """
-    name = models.CharField(_('Name'), max_length=100)
-    slug = models.SlugField(max_length=150, unique=True, allow_unicode=True)
+    name = models.CharField(max_length=100, verbose_name='نام دسته‌بندی')
+    slug = models.SlugField(max_length=150, unique=True, allow_unicode=True, verbose_name='اسلاگ (آدرس)')
     parent = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name='children',
-        verbose_name=_('Parent Category')
+        verbose_name= 'دسته بندی والد'
     )
-    icon = models.ImageField(upload_to='categories/icons/', blank=True, null=True)
-    image = models.ImageField(upload_to='categories/images/', blank=True, null=True)
-    is_active = models.BooleanField(default=True)
+    icon = models.ImageField(upload_to='categories/icons/', blank=True, null=True, verbose_name='آیکون')
+    image = models.ImageField(upload_to='categories/images/', blank=True, null=True, verbose_name='تصویر')
+    is_active = models.BooleanField(default=True, verbose_name='فعال')
 
     class Meta:
-        verbose_name = _('Category')
-        verbose_name_plural = _('Categories')
+        verbose_name = 'دسته‌بندی'
+        verbose_name_plural = 'دسته‌بندی‌ها'
         ordering = ['name']
 
     def __str__(self):
@@ -42,13 +42,13 @@ class Category(models.Model):
 
 
 class Brand(models.Model):
-    name = models.CharField(_('Brand Name'), max_length=100)
-    slug = models.SlugField(unique=True)
-    logo = models.ImageField(upload_to='brands/', blank=True, null=True)
+    name = models.CharField(max_length=100, verbose_name='نام برند')
+    slug = models.SlugField(unique=True, verbose_name='اسلاگ')
+    logo = models.ImageField(upload_to='brands/', blank=True, null=True, verbose_name='لوگو')
 
     class Meta:
-        verbose_name = _('Brand')
-        verbose_name_plural = _('Brands')
+        verbose_name = 'برند'
+        verbose_name_plural = 'برندها'
 
     def __str__(self):
         return self.name
@@ -56,53 +56,55 @@ class Brand(models.Model):
 
 class Product(models.Model):
     class Status(models.TextChoices):
-        DRAFT = 'draft', _('Draft')
-        REVIEW = 'review', _('Under Review')
-        PUBLISHED = 'published', _('Published')
-        REJECTED = 'rejected', _('Rejected')
+        DRAFT = 'draft', 'پیش نویس'
+        REVIEW = 'review', 'در حال بررسی'
+        PUBLISHED = 'published', 'منتشر شده'
+        REJECTED = 'rejected', 'رد شده'
 
     # ارتباط با فروشنده
     vendor = models.ForeignKey(
         Vendor,
         on_delete=models.CASCADE,
         related_name='products',
-        verbose_name=_('Vendor')
+        verbose_name=_('فروشنده')
     )
 
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
         related_name='products',
-        verbose_name=_('Category')
+        verbose_name= 'دسته بندی'
     )
     brand = models.ForeignKey(
         Brand,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='products'
+        related_name='products',
+        verbose_name = 'برند',
     )
 
-    name = models.CharField(_('Product Name'), max_length=255)
-    slug = models.SlugField(max_length=255, unique=True, allow_unicode=True)
-    description = models.TextField(_('Description'), blank=True)
+    name = models.CharField(max_length=255, verbose_name='نام محصول')
+    slug = models.SlugField(max_length=255, unique=True, allow_unicode=True, verbose_name='اسلاگ')
+    description = models.TextField(blank=True, verbose_name='توضیحات')
 
     # تصویر اصلی (کاور)
-    image = models.ImageField(upload_to='products/covers/')
+    image = models.ImageField(upload_to='products/covers/', verbose_name='تصویر اصلی')
 
-    price = models.PositiveIntegerField(_('Price (Toman)'))
-    discount_price = models.PositiveIntegerField(_('Discounted Price'), null=True, blank=True)
-    stock = models.PositiveIntegerField(_('Stock'), default=0)
+    price = models.PositiveIntegerField(verbose_name='قیمت (تومان)')
+    discount_price = models.PositiveIntegerField(null=True, blank=True, verbose_name='قیمت با تخفیف')
+    stock = models.PositiveIntegerField(default=0, verbose_name='موجودی انبار')
 
     # ویژگی‌های داینامیک
     # مثال دیتا: {"ram": "8GB", "screen": "6.5 inch", "color": "Blue"}
-    specifications = models.JSONField(_('Specifications'), default=dict, blank=True)
+    specifications = models.JSONField(default=dict, blank=True, verbose_name='ویژگی های داینامیک')
 
-    is_available = models.BooleanField(default=True)
+    is_available = models.BooleanField(default=True, verbose_name='موجود است؟')
     status = models.CharField(
         max_length=10,
         choices=Status.choices,
-        default=Status.DRAFT
+        default=Status.DRAFT,
+        verbose_name='وضعیت'
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -116,8 +118,8 @@ class Product(models.Model):
     )
 
     class Meta:
-        verbose_name = _('Product')
-        verbose_name_plural = _('Products')
+        verbose_name = 'محصول'
+        verbose_name_plural = 'محصولات'
         ordering = ['-created_at']
 
     def __str__(self):
@@ -155,13 +157,14 @@ class Review(models.Model):
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    score = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(5)])
+    score = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(5)], verbose_name='امتیاز')
     comment = models.TextField(_('Comment'))
 
     recommendation = models.CharField(
         max_length=20,
         choices=Recommendation.choices,
-        default=Recommendation.NO_IDEA
+        default=Recommendation.NO_IDEA,
+        verbose_name = 'پیشنهاد خرید'
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -171,6 +174,8 @@ class Review(models.Model):
     dislikes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='disliked_reviews', blank=True)
 
     class Meta:
+        verbose_name = 'دیدگاه'
+        verbose_name_plural = 'دیدگاه‌ها'
         ordering = ['-created_at']
 
     def __str__(self):

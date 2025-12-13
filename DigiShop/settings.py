@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from django.templatetags.static import static
 
 
 load_dotenv()
@@ -68,10 +69,60 @@ INSTALLED_APPS = [
     'analytics',
 ]
 
-# تنظیمات Unfold (تم و استایل)
+# تنظیمات تم Unfold
 UNFOLD = {
-    "SITE_TITLE": "Admin Panel",
-    "SITE_HEADER": "Super Store Dashboard",
+    "SITE_TITLE": "مدیریت دیجی‌شاپ",
+    "SITE_HEADER": "پنل مدیریت",
+    "SITE_URL": "/",
+    # لینک کردن فایل CSS
+    "STYLES": [
+        lambda request: static("admin/admin_rtl.css"),
+    ],
+    # لینک کردن اسکریپت‌ها
+    "SCRIPTS": [],
+    # تنظیم رنگ‌های پنل
+    "COLORS": {
+        "primary": {
+            "50": "254 242 242",
+            "100": "254 226 226",
+            "200": "254 202 202",
+            "300": "252 165 165",
+            "400": "248 113 113",
+            "500": "239 68 68",
+            "600": "220 38 38",
+            "700": "185 28 28",
+            "800": "153 27 27",
+            "900": "127 29 29",
+        },
+    },
+    # تنظیمات سایدبار
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": "فروشگاه",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "داشبورد",
+                        "icon": "dashboard",
+                        "link": "/admin/",
+                    },
+                    {
+                        "title": "محصولات",
+                        "icon": "shopping_bag",
+                        "link": "/admin/products/product/",
+                    },
+                    {
+                        "title": "سفارشات",
+                        "icon": "receipt_long",
+                        "link": "/admin/orders/order/",
+                    },
+                ],
+            },
+        ],
+    },
 }
 
 MIDDLEWARE = [
@@ -145,12 +196,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fa-ir'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
 
 
