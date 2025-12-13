@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+
+<nav class="flex text-sm text-gray-500 mb-6 overflow-x-auto whitespace-nowrap items-center">
+    <a href="{% url 'core:home' %}" class="hover:text-red-600">خانه</a>
+    <span class="mx-2">/</span>
+
+    {% if product.category.parent %}
+    <a href="{% url 'products:product_list' %}?category={{ product.category.parent.slug }}" class="hover:text-red-600">{{ product.category.parent.name }}</a>
+    <span class="mx-2">/</span>
+    {% endif %}
+
+    <a href="{% url 'products:product_list' %}?category={{ product.category.slug }}" class="hover:text-red-600">{{ product.category.name }}</a>
+    <span class="mx-2">/</span>
+    <span class="text-gray-800 font-medium">{{ product.name }}</span>
+</nav>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+    <div class="lg:col-span-4" x-data="{ activeImage: '{{ product.image.url }}' }">
+        <div class="bg-white rounded-2xl p-2 shadow-sm border border-gray-100 mb-4 relative group">
+            <div class="aspect-square overflow-hidden rounded-xl flex items-center justify-center bg-gray-50">
+                <img :src="activeImage" class="w-full h-full object-contain cursor-zoom-in mix-blend-multiply" alt="{{ product.name }}">
+            </div>
+            {% if product.discount_price %}
+            <span class="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">پیشنهاد شگفت‌انگیز</span>
+            {% endif %}
+        </div>
+
+        <div class="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
+            <button @click="activeImage = '{{ product.image.url }}'"
+                    :class="activeImage === '{{ product.image.url }}' ? 'ring-2 ring-red-500 border-transparent' : 'border-gray-200'"
+                    class="w-20 h-20 border rounded-lg overflow-hidden flex-shrink-0 bg-white p-1 hover:border-red-300 transition">
+                <img src="{{ product.image.url }}" class="w-full h-full object-contain">
+            </button>
+            {% for img in product.images.all %}
+            <button @click="activeImage = '{{ img.image.url }}'"
+                    :class="activeImage === '{{ img.image.url }}' ? 'ring-2 ring-red-500 border-transparent' : 'border-gray-200'"
+                    class="w-20 h-20 border rounded-lg overflow-hidden flex-shrink-0 bg-white p-1 hover:border-red-300 transition">
+                <img src="{{ img.image.url }}" class="w-full h-full object-contain">
+            </button>
+            {% endfor %}
+        </div>
+
+        <div class="flex gap-6 mt-6 text-gray-500 text-sm justify-center items-center">
+            {% include 'core/includes/wishlist_button.html' %}
+            <button class="flex items-center gap-1 hover:text-blue-600 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                اشتراک‌گذاری
+            </button>
+        </div>
+    </div>
+
+    <div class="lg:col-span-5">
+        {% if product.brand %}
+        <a href="{% url 'products:product_list' %}?brand={{ product.brand.slug }}" class="text-blue-500 text-sm font-bold mb-2 inline-block">{{ product.brand.name }}</a>
+        {% endif %}
+
+        <h1 class="text-2xl font-bold text-gray-900 mb-2 leading-8">{{ product.name }}</h1>
+        <div class="flex items-center gap-2 mb-4 text-sm">
+            <div class="flex text-yellow-400">
+                {% if avg_rating > 0 %}{{ avg_rating }} ★{% else %}بدون امتیاز{% endif %}
+            </div>
+            <span class="text-gray-400">({{ reviews.count }} دیدگاه کاربر)</span>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="font-bold text-sm mb-2 text-gray-700">ویژگی‌های اصلی:</h3>
+            <ul class="text-sm text-gray-500 space-y-1 list-disc list-inside">
+                {# نمایش ۴ ویژگی اول جیسون برای خلاصه #}
+                {% for key, value in product.specifications.items|slice:":4" %}
+                    <li><span class="text-gray-700">{{ key }}:</span> {{ value }}</li>
+                {% empty %}
+                    <li>مشخصات فنی ثبت نشده است.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="lg:col-span-3">
+        <div class="bg-gray-50 rounded-xl p-5 border border-gray-200 sticky top-24">
+            <div class="mb-4 pb-4 border-b border-gray-200">
+                <span class="text-gray-600 text-sm font-bold">فروشنده:</span>
+                <div class="flex items-center gap-2 mt-2">
+                    <div class="w-10 h-10 bg-white rounded-full border border-gray-200 flex items-center justify-center text-gray-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm text-gray-800">{{ product.vendor.store_name }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                {% if product.discount_price %}
+                    <div class="flex justify-end items-center gap-2 mb-1">
+                        <span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">10%</span>
+                        <span class="text-gray-400 line-through text-sm">{{ product.price|intcomma }}</span>
+                    </div>
+                    <div class="text-left text-2xl font-bold text-gray-900">{{ product.discount_price|intcomma }} <span class="text-sm font-normal">تومان</span></div>
+                {% else %}
+                    <div class="text-left text-2xl font-bold text-gray-900">{{ product.price|intcomma }} <span class="text-sm font-normal">تومان</span></div>
+                {% endif %}
+            </div>
+
+            {% if product.stock > 0 %}
+                <button hx-post="{% url 'orders:cart_add' product.id %}" hx-target="#cart-dropdown-container" hx-swap="outerHTML" class="w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition shadow-lg shadow-red-200 mb-3 flex items-center justify-center gap-2 active:scale-95">
+                    <span>افزودن به سبد خرید</span>
+                </button>
+            {% else %}
+                <button disabled class="w-full py-3 px-4 bg-gray-300 text-gray-500 font-bold rounded-xl cursor-not-allowed mb-3">ناموجود</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="mt-16" x-data="{ activeTab: 'desc' }">
+    <div class="border-b border-gray-200 mb-6">
+        <nav class="flex gap-8">
+            <button @click="activeTab = 'desc'" :class="activeTab === 'desc' ? 'border-red-600 text-red-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="py-4 px-1 border-b-2 font-medium text-sm transition">توضیحات</button>
+            <button @click="activeTab = 'specs'" :class="activeTab === 'specs' ? 'border-red-600 text-red-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="py-4 px-1 border-b-2 font-medium text-sm transition">مشخصات فنی</button>
+            <button @click="activeTab = 'reviews'" :class="activeTab === 'reviews' ? 'border-red-600 text-red-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="py-4 px-1 border-b-2 font-medium text-sm transition">دیدگاه کاربران <span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs mr-1">{{ reviews.count }}</span></button>
+        </nav>
+    </div>
+
+    <div x-show="activeTab === 'desc'" class="prose max-w-none text-gray-600 leading-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">نقد و بررسی</h3>
+        <p>{{ product.description|linebreaks }}</p>
+    </div>
+
+    <div x-show="activeTab === 'specs'" style="display: none;">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 class="font-bold text-xl text-gray-800 mb-6 flex items-center gap-2"><span class="w-1 h-6 bg-red-600 rounded-full block"></span>مشخصات فنی</h2>
+            <div class="space-y-8">
+                {% for group in specs_display %}
+                <div>
+                    <h3 class="font-bold text-gray-700 mb-3 text-lg">{{ group.name }}</h3>
+                    <div class="bg-gray-50 rounded-lg border border-gray-100 overflow-hidden">
+                        {% for item in group.items %}
+                        <div class="flex flex-col sm:flex-row border-b border-gray-200 last:border-0">
+                            <div class="sm:w-1/4 bg-gray-100 px-4 py-3 text-sm font-medium text-gray-600 flex items-center">{{ item.label }}</div>
+                            <div class="sm:w-3/4 px-4 py-3 text-sm text-gray-800 font-bold bg-white">{{ item.value }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-500">مشخصات فنی برای این محصول ثبت نشده است.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div x-show="activeTab === 'reviews'" style="display: none;">
+        {% include 'core/includes/review_section.html' %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from unfold.admin import ModelAdmin, TabularInline
-from .models import Brand, Product, ProductImage, Category, Review, ProductAttribute, MegaMenuColumn, MegaMenuItem
+from .models import Brand, Product, ProductImage, Category, Review, ProductAttribute, MegaMenuColumn, MegaMenuItem, \
+    AttributeGroup
 from mptt.admin import DraggableMPTTAdmin
 
 
@@ -28,7 +29,6 @@ class CategoryAdmin(DraggableMPTTAdmin):
     search_fields = ['name']
     prepopulated_fields = {'slug': ('name',)}
     list_filter = ['is_active', 'parent']
-    inlines = [ProductAttributeInline]
 
 
     def image_preview(self, obj):
@@ -37,6 +37,15 @@ class CategoryAdmin(DraggableMPTTAdmin):
         return "-"
 
     image_preview.short_description = "Icon"
+
+
+@admin.register(AttributeGroup)
+class AttributeGroupAdmin(ModelAdmin):
+    list_display = ['name', 'category', 'order']
+    list_filter = ['category']
+    search_fields = ['name', 'category__name']
+
+    inlines = [ProductAttributeInline]
 
 
 @admin.register(Brand)

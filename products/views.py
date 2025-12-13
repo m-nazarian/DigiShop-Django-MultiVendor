@@ -1,67 +1,49 @@
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, render
-from .models import ProductAttribute, Category, Product, Brand
+from .models import ProductAttribute, Category, Product, Brand, AttributeGroup, Review
+from .forms import ReviewForm  # فرض بر این است که فرم را در products/forms.py داری
 from django.db.models import Count, Q
 
 
+# --- API مربوط به پنل ادمین ---
 @staff_member_required
 def get_category_attributes(request, category_id):
-    # 1. پیدا کردن دسته‌بندی انتخاب شده
     current_category = get_object_or_404(Category, id=category_id)
+    category_family = current_category.get_ancestors(include_self=True)
+    groups = AttributeGroup.objects.filter(
+        category__in=category_family
+    ).prefetch_related('attributes').order_by('category__level', 'order')
 
-    # 2. پیدا کردن تمام اجداد (پدر، پدر بزرگ و...)
-    category_family_ids = [current_category.id]
-    parent = current_category.parent
-
-    # تا وقتی که پدر وجود دارد، برو بالا
-    while parent:
-        category_family_ids.append(parent.id)
-        parent = parent.parent
-
-    # 3. گرفتن ویژگی‌هایی که متعلق به این خانواده هستند
-    attributes = ProductAttribute.objects.filter(
-        category_id__in=category_family_ids
-    ).values('key', 'label')
-
-    return JsonResponse({'attributes': list(attributes)})
+    data = []
+    for group in groups:
+        attributes = group.attributes.all().values('key', 'label')
+        if attributes:
+            data.append({
+                'group_name': group.name,
+                'attributes': list(attributes)
+            })
+    return JsonResponse({'groups': data})
 
 
+# --- لیست محصولات ---
 def product_list(request):
-    # 1. کوئری پایه: فقط محصولات منتشر شده
     products = Product.objects.filter(status=Product.Status.PUBLISHED)
-
-    # متغیری برای ذخیره ویژگی‌های قابل فیلتر (برای ارسال به تمپلیت)
     filterable_specs = []
-
-    # --- بخش ۱: اعمال فیلترهای پایه ---
-
-    # دسته‌بندی
     current_category = None
     category_slug = request.GET.get('category')
 
     if category_slug:
         current_category = get_object_or_404(Category, slug=category_slug)
-        # محصولات این دسته و زیرمجموعه‌هاش
         products = products.filter(category__in=current_category.get_descendants(include_self=True))
 
-        # === استخراج فیلترهای پیشرفته ===
-        # فقط وقتی دسته‌بندی انتخاب شده، فیلترهای مخصوصش رو نشون میدیم
-
-        # 1. پیدا کردن ویژگی‌های تعریف شده برای این دسته و اجدادش
         category_family_ids = current_category.get_ancestors(include_self=True).values_list('id', flat=True)
         attributes = ProductAttribute.objects.filter(category_id__in=category_family_ids)
 
-        # 2. برای هر ویژگی (مثلا RAM)، مقادیر موجود در محصولات رو پیدا کن
         for attr in attributes:
             spec_key = attr.key
-
-            # پیدا کردن مقادیر یکتا برای این کلید در محصولات فعلی
             values = products.values_list(f'specifications__{spec_key}', flat=True).distinct()
-
-            # حذف مقادیر None یا خالی
             clean_values = [v for v in values if v]
-
             if clean_values:
                 filterable_specs.append({
                     'key': spec_key,
@@ -69,35 +51,25 @@ def product_list(request):
                     'values': sorted(clean_values)
                 })
 
-    # فیلتر برند
     brands_slugs = request.GET.getlist('brand')
     if brands_slugs:
         products = products.filter(brand__slug__in=brands_slugs)
 
-    # جستجو
     search_query = request.GET.get('q')
     if search_query:
         products = products.filter(name__icontains=search_query)
 
-    # موجودی
     if request.GET.get('available') == '1':
         products = products.filter(stock__gt=0)
 
-    # === بخش ۲: اعمال فیلترهای پیشرفته (JSON) ===
-    # هر پارامتری که با 'spec_' شروع بشه رو میگیریم
     for param in request.GET:
         if param.startswith('spec_'):
-            # تبدیل spec_ram به ram
             clean_key = param.replace('spec_', '')
-            # دریافت مقادیر انتخاب شده (چون کاربر ممکنه چند تا چک‌باکس بزنه)
             selected_values = request.GET.getlist(param)
-
             if selected_values:
-                # فیلتر کردن روی فیلد JSON
                 filter_kwargs = {f"specifications__{clean_key}__in": selected_values}
                 products = products.filter(**filter_kwargs)
 
-    # --- مرتب‌سازی (باید آخر همه باشه) ---
     sort_by = request.GET.get('sort')
     if sort_by == 'cheapest':
         products = products.order_by('price')
@@ -113,3 +85,47 @@ def product_list(request):
         'filterable_specs': filterable_specs,
     }
     return render(request, 'products/product_list.html', context)
+
+
+# --- جزئیات محصول ---
+def product_detail(request, slug):
+    # 1. دریافت محصول با تمام وابستگی‌ها (بهینه شده)
+    product = get_object_or_404(
+        Product.objects.select_related('vendor', 'category', 'brand')
+        .prefetch_related('images', 'reviews__user'),
+        slug=slug,
+        status=Product.Status.PUBLISHED
+    )
+
+    # 2. آماده‌سازی مشخصات فنی گروه‌بندی شده
+    category_family = product.category.get_ancestors(include_self=True)
+    attribute_groups = AttributeGroup.objects.filter(category__in=category_family).prefetch_related('attributes')
+
+    specs_display = []
+    for group in attribute_groups:
+        group_specs = []
+        for attr in group.attributes.all():
+            value = product.specifications.get(attr.key)
+            if value:
+                group_specs.append({'label': attr.label, 'value': value})
+        if group_specs:
+            specs_display.append({'name': group.name, 'items': group_specs})
+
+    # 3. مدیریت نظرات و امتیاز
+    reviews = product.reviews.all()
+    avg_rating = 0
+    if reviews.exists():
+        avg_rating = sum(r.score for r in reviews) / reviews.count()
+
+    # 4. فرم نظرات
+    form = ReviewForm()
+
+    context = {
+        'product': product,
+        'specs_display': specs_display,  # برای ویژگی‌های گروه‌بندی شده
+        'reviews': reviews,  # برای لیست نظرات
+        'avg_rating': round(avg_rating, 1),
+        'range_5': range(1, 6),  # برای نمایش ستاره‌ها در تمپلیت
+        'form': form,  # برای فرم ثبت نظر
+    }
+    return render(request, 'products/product_detail.html', context)

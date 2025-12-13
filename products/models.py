@@ -134,7 +134,7 @@ class Product(models.Model):
         return self.discount_price if self.discount_price else self.price
 
     def get_absolute_url(self):
-        return reverse('core:product_detail', args=[self.slug])
+        return reverse('products:product_detail', args=[self.slug])
 
 
 
@@ -189,18 +189,38 @@ class Review(models.Model):
         return True
 
 
-class ProductAttribute(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='attributes',
+class AttributeGroup(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='attribute_groups',
                                  verbose_name='دسته‌بندی')
-    key = models.CharField(max_length=50, verbose_name='نام ویژگی (انگلیسی)', help_text="مثال: ram, color, weight")
-    label = models.CharField(max_length=50, verbose_name='عنوان نمایشی (فارسی)', help_text="مثال: حافظه رم، رنگ محصول")
+    name = models.CharField(max_length=100, verbose_name='نام گروه', help_text="مثال: مشخصات کلی، صفحه نمایش، پردازنده")
+    order = models.PositiveIntegerField(default=0, verbose_name='ترتیب نمایش')
 
     class Meta:
-        verbose_name = 'ویژگی محصول'
-        verbose_name_plural = 'ویژگی‌های محصولات (سازنده فرم)'
+        ordering = ['order']
+        verbose_name = 'گروه ویژگی'
+        verbose_name_plural = 'گروه‌های ویژگی'
 
     def __str__(self):
-        return f"{self.category.name} - {self.label}"
+        return f"{self.category.name} | {self.name}"
+
+
+class ProductAttribute(models.Model):
+    group = models.ForeignKey(AttributeGroup, on_delete=models.CASCADE, related_name='attributes',
+                              verbose_name='گروه والد')
+
+    key = models.CharField(max_length=50, verbose_name='نام ویژگی (انگلیسی)', help_text="مثال: ram")
+    label = models.CharField(max_length=50, verbose_name='عنوان نمایشی (فارسی)', help_text="مثال: حافظه رم")
+
+    order = models.PositiveIntegerField(default=0, verbose_name='ترتیب')
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'ویژگی محصول'
+        verbose_name_plural = 'ویژگی‌های محصولات'
+
+    def __str__(self):
+        return f"{self.group.name} - {self.label}"
+
 
 
 class MegaMenuColumn(models.Model):
