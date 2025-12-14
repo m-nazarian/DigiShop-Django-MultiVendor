@@ -15,7 +15,7 @@ class ProductImageInline(TabularInline):
 class ProductAttributeInline(admin.TabularInline):
     model = ProductAttribute
     extra = 1
-    fields = ['key', 'label', 'is_main', 'order']
+    fields = ['key', 'label', 'is_filterable', 'is_main', 'order']
 
 
 class MegaMenuItemInline(admin.TabularInline):

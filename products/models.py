@@ -222,7 +222,10 @@ class ProductAttribute(models.Model):
     )
 
     label = models.CharField(max_length=50, verbose_name='عنوان نمایشی (فارسی)', help_text="مثال: حافظه رم")
+
+    is_filterable = models.BooleanField(default=False, verbose_name='استفاده به عنوان فیلتر')
     is_main = models.BooleanField(default=False, verbose_name='نمایش در ویژگی‌های اصلی')
+
     order = models.PositiveIntegerField(default=0, verbose_name='ترتیب')
 
     class Meta:

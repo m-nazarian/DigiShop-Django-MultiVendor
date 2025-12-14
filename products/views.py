@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, render
 from .models import ProductAttribute, Category, Product, Brand, AttributeGroup, Review
-from .forms import ReviewForm  # فرض بر این است که فرم را در products/forms.py داری
+from .forms import ReviewForm
 from django.db.models import Count, Q
 
 
@@ -39,13 +39,13 @@ def product_list(request):
 
         category_family_ids = current_category.get_ancestors(include_self=True).values_list('id', flat=True)
 
-        # --- اصلاح مهم اینجاست 👇 ---
-        # چون ویژگی به گروه وصله، باید از طریق group به category برسیم
-        attributes = ProductAttribute.objects.filter(group__category_id__in=category_family_ids)
+        attributes = ProductAttribute.objects.filter(
+            group__category_id__in=category_family_ids,
+            is_filterable=True
+        )
 
         for attr in attributes:
             spec_key = attr.key
-            # مقادیر یکتا رو پیدا میکنیم
             values = products.values_list(f'specifications__{spec_key}', flat=True).distinct()
             clean_values = [v for v in values if v]
             if clean_values:
@@ -55,7 +55,6 @@ def product_list(request):
                     'values': sorted(clean_values)
                 })
 
-    # بقیه کدها مثل قبل (برند، سرچ، فیلترهای spec_ و مرتب‌سازی)...
     brands_slugs = request.GET.getlist('brand')
     if brands_slugs:
         products = products.filter(brand__slug__in=brands_slugs)
