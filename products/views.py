@@ -149,3 +149,25 @@ def product_detail(request, slug):
         'form': form,
     }
     return render(request, 'products/product_detail.html', context)
+
+
+
+def amazing_offers(request):
+    """
+    صفحه نمایش تمام محصولات تخفیف‌دار
+    اولویت نمایش با محصولاتی است که ادمین تیک is_special زده است.
+    """
+    products = Product.objects.filter(
+        status=Product.Status.PUBLISHED,
+        is_available=True,
+        stock__gt=0,
+        discount_price__isnull=False  # فقط تخفیف‌دارها
+    ).order_by(
+        '-is_special',   # اول اونایی که ادمین ویژه کرده
+        '-created_at'    # بعد جدیدترین‌ها
+    )
+
+    context = {
+        'products': products
+    }
+    return render(request, 'products/amazing_offers.html', context)

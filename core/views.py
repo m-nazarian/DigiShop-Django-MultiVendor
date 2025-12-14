@@ -23,9 +23,10 @@ def home(request):
     amazing_products = Product.objects.filter(
         status=Product.Status.PUBLISHED,
         is_available=True,
-        discount_price__isnull=False,
-        stock__gt=0
-    ).order_by('-created_at')[:10]
+        stock__gt=0,
+        is_special=True,
+        discount_price__isnull=False
+    ).exclude(discount_price=0).order_by('-updated_at')[:10]
 
     # 4. جدیدترین محصولات
     latest_products = Product.objects.filter(

@@ -66,7 +66,8 @@ class BrandAdmin(ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(ModelAdmin):
     # 1. اضافه کردن wishlist_count به لیست نمایش
-    list_display = ['name', 'price_display', 'vendor', 'category', 'status', 'wishlist_count', 'cover_preview']
+    list_display = ['name', 'price_display', 'stock','is_special', 'vendor', 'category', 'status', 'wishlist_count', 'cover_preview']
+    list_editable = ['is_special', 'stock']
     list_filter = ['status', 'is_available', 'created_at', 'vendor', 'category']
     search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}

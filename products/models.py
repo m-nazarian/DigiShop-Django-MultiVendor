@@ -98,6 +98,8 @@ class Product(models.Model):
     discount_price = models.PositiveIntegerField(null=True, blank=True, verbose_name='قیمت با تخفیف')
     stock = models.PositiveIntegerField(default=0, verbose_name='موجودی انبار')
 
+    is_special = models.BooleanField(default=False, verbose_name='پیشنهاد شگفت‌انگیز (ویژه)')
+
     # ویژگی‌های داینامیک
     # مثال دیتا: {"ram": "8GB", "screen": "6.5 inch", "color": "Blue"}
     specifications = models.JSONField(default=dict, blank=True, verbose_name='ویژگی های داینامیک')

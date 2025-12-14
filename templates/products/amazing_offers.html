@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}پیشنهادات شگفت‌انگیز{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+
+    <div class="bg-red-500 rounded-2xl p-8 mb-8 flex flex-col md:flex-row items-center justify-between text-white shadow-lg overflow-hidden relative">
+        <div class="relative z-10">
+            <h1 class="text-3xl font-extrabold mb-2">پیشنهادها شگفت‌انگیز</h1>
+            <p class="opacity-90">فرصت را از دست ندهید! بهترین کالاها با بهترین قیمت‌ها</p>
+        </div>
+        <img src="https://www.digikala.com/statics/img/png/specialCarousel/box.png" class="w-32 md:w-48 relative z-10 mt-4 md:mt-0 drop-shadow-2xl">
+
+        <div class="absolute inset-0 opacity-10" style="background-image: url('/static/img/pattern.png');"></div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {% for product in products %}
+        <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition border border-gray-100 p-3 group relative">
+
+            {% if product.is_special %}
+            <span class="absolute top-2 right-2 z-10 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md animate-pulse">
+                پیشنهاد ویژه
+            </span>
+            {% endif %}
+
+            <a href="{{ product.get_absolute_url }}" class="block mb-3 aspect-square relative">
+                <img src="{{ product.image.url }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition" alt="{{ product.name }}">
+            </a>
+
+            <h3 class="text-xs font-bold text-gray-700 leading-6 mb-2 line-clamp-2 h-10">
+                <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+            </h3>
+
+            <div class="mt-auto">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="bg-red-100 text-red-600 text-[10px] font-bold px-1.5 py-0.5 rounded-md">
+                        {{ product.discount_percent }}%
+                    </span>
+                    <span class="text-xs text-gray-400 line-through decoration-red-500">
+                        {{ product.price|intcomma }}
+                    </span>
+                </div>
+                <div class="text-left font-bold text-gray-900 text-sm">
+                    {{ product.discount_price|intcomma }} <span class="text-[10px] font-normal">تومان</span>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-20">
+            <p class="text-gray-500">فعلاً پیشنهاد شگفت‌انگیزی نداریم!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
