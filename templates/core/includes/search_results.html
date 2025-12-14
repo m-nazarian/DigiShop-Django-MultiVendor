@@ -1,0 +1,58 @@
+{% load humanize %}
+
+<div class="flex flex-col">
+    {% if related_categories %}
+    <div class="bg-gray-50 border-b border-gray-100 py-2">
+        {% for cat in related_categories %}
+        <a href="{% url 'products:product_list' %}?q={{ query }}&category={{ cat.slug }}" class="flex items-center justify-between px-5 py-3 hover:bg-gray-100 transition group">
+            <div class="flex items-center gap-2 text-sm text-gray-800 overflow-hidden">
+                <span class="text-gray-400 whitespace-nowrap">جستجو در دسته:</span>
+                <span class="font-bold text-blue-600 truncate max-w-[200px]">{{ cat.name }}</span>
+            </div>
+            <span class="text-xs text-blue-500 font-medium flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                مشاهده نتایج
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </span>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if suggestions %}
+    <ul class="py-2">
+        {% for product in suggestions %}
+        <li>
+            <a href="{{ product.get_absolute_url }}" class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 transition border-b border-gray-50 last:border-0 group">
+
+                <div class="w-12 h-12 flex-shrink-0 bg-white border border-gray-100 rounded-lg p-1">
+                    <img src="{{ product.image.url }}" class="w-full h-full object-contain mix-blend-multiply" alt="{{ product.name }}">
+                </div>
+
+                <div class="flex-grow min-w-0"> <p class="text-sm font-medium text-gray-700 group-hover:text-red-600 transition truncate">
+                        {{ product.name }}
+                    </p>
+                    {% if product.is_available %}
+                        <div class="mt-1 flex items-center gap-2">
+                            {% if product.discount_price %}
+                                <span class="text-xs font-bold text-gray-900">{{ product.discount_price|intcomma }} تومان</span>
+                            {% else %}
+                                <span class="text-xs font-bold text-gray-900">{{ product.price|intcomma }} تومان</span>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <span class="text-[10px] bg-gray-200 text-gray-500 px-2 py-0.5 rounded-sm">ناموجود</span>
+                    {% endif %}
+                </div>
+
+                <svg class="w-4 h-4 text-gray-300 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="p-8 text-center flex flex-col items-center justify-center text-gray-500">
+        <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <p class="text-sm">محصولی با این نام یافت نشد.</p>
+    </div>
+    {% endif %}
+</div>

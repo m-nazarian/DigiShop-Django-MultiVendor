@@ -9,4 +9,6 @@ urlpatterns = [
     path('product/<str:slug>/add-review/', views.add_review, name='add_review'),
     path('review/<int:review_id>/like/', views.like_review, name='like_review'),
     path('review/<int:review_id>/dislike/', views.dislike_review, name='dislike_review'),
+    path('search-box/', views.search_box, name='search_box'),
+    path('remove-history/<int:history_id>/', views.remove_history, name='remove_history'),
 ]

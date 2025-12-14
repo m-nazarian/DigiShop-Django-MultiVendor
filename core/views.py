@@ -1,10 +1,12 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from core.models import HomeBanner, Slider
-from products.models import Product, Review
+from products.models import Product, Review, Category
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from products.forms import ReviewForm
+from .models import SearchHistory
+from django.db.models import Count, Q
 
 
 def home(request):
@@ -92,3 +94,58 @@ def dislike_review(request, review_id):
         review.dislikes.add(request.user)
         review.likes.remove(request.user)
     return render(request, 'core/includes/review_actions.html', {'review': review})
+
+
+def search_box(request):
+    """
+    این ویو مسئول هندل کردن تمام اتفاقات سرچ باکس است.
+    """
+    query = request.GET.get('q', '').strip()
+
+    # 1. حالت اول: کاربر فقط کلیک کرده و هنوز تایپ نکرده (نمایش تاریخچه + محبوب‌ها)
+    if not query:
+        recent_searches = []
+        if request.user.is_authenticated:
+            # گرفتن ۵ جستجوی آخر کاربر (تکراری‌ها رو حذف می‌کنیم)
+            recent_searches = SearchHistory.objects.filter(user=request.user).values('id', 'query').distinct()[:5]
+
+        # محبوب‌ترین جستجوها
+        popular_searches = ["آیفون 13", "کفش ورزشی", "لپ تاپ ایسوس", "ساعت هوشمند"]
+
+        return render(request, 'core/includes/search_initial.html', {
+            'recent_searches': recent_searches,
+            'popular_searches': popular_searches
+        })
+
+    # 2. حالت دوم: کاربر داره تایپ می‌کنه (نمایش نتایج هوشمند)
+
+    # الف) ذخیره در تاریخچه (اگر کاربر اینتر زد یا رفت تو صفحه سرچ، اینجا فقط پیشنهاد میدیم)
+    # نکته: ما اینجا ذخیره نمی‌کنیم، ذخیره رو وقتی انجام میدیم که کاربر روی نتیجه کلیک کنه یا اینتر بزنه.
+
+    # ب) پیدا کردن دسته‌بندی‌های مرتبط
+    # مثلا کاربر زده "S24" -> پیدا میکنیم کدوم دسته‌ها محصولی دارن که توش "S24" هست
+    related_categories = Category.objects.filter(
+        products__name__icontains=query,
+        products__status=Product.Status.PUBLISHED
+    ).annotate(count=Count('id')).filter(count__gt=0).distinct()[:3]
+
+    # ج) تکمیل خودکار کلمات (Suggestions)
+    # محصولاتی که نامشون با کوئری شروع میشه یا توش هست
+    suggestions = Product.objects.filter(
+        name__icontains=query,
+        status=Product.Status.PUBLISHED
+    ).only('name', 'slug', 'image', 'price', 'discount_price')[:5]
+
+    context = {
+        'query': query,
+        'related_categories': related_categories,
+        'suggestions': suggestions,
+    }
+    return render(request, 'core/includes/search_results.html', context)
+
+
+@login_required
+def remove_history(request, history_id):
+    """حذف تکی تاریخچه جستجو"""
+    SearchHistory.objects.filter(id=history_id, user=request.user).delete()
+    return HttpResponse("")  # هیچی برنمی‌گردونه تا سطر حذف شه

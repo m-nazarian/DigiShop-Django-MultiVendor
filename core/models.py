@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 
 class Slider(models.Model):
@@ -37,3 +38,18 @@ class HomeBanner(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.get_position_display()})"
+
+
+
+class SearchHistory(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='search_history')
+    query = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'تاریخچه جستجو'
+        verbose_name_plural = 'تاریخچه جستجوها'
+
+    def __str__(self):
+        return f"{self.user} - {self.query}"

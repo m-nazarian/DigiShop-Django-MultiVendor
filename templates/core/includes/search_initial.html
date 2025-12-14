@@ -1,0 +1,42 @@
+<div class="p-4">
+    {% if recent_searches %}
+    <div class="mb-4">
+        <div class="flex justify-between items-center mb-2">
+            <h3 class="text-sm font-bold text-gray-700 flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                آخرین جستجوهای شما
+            </h3>
+        </div>
+        <div class="space-y-1">
+            {% for item in recent_searches %}
+            <div class="flex justify-between items-center group hover:bg-gray-50 p-2 rounded-lg transition" id="history-item-{{ item.id }}">
+                <a href="{% url 'products:product_list' %}?q={{ item.query }}" class="flex-1 text-sm text-gray-600 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-gray-300 rounded-full"></span>
+                    {{ item.query }}
+                </a>
+                <button hx-post="{% url 'core:remove_history' item.id %}"
+                        hx-target="#history-item-{{ item.id }}"
+                        hx-swap="outerHTML"
+                        class="text-gray-300 hover:text-red-500 p-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div>
+        <h3 class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1">
+            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+            جستجوهای پرطرفدار
+        </h3>
+        <div class="flex flex-wrap gap-2">
+            {% for tag in popular_searches %}
+            <a href="{% url 'products:product_list' %}?q={{ tag }}" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full transition border border-gray-200">
+                {{ tag }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
