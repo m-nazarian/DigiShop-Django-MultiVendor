@@ -39,8 +39,6 @@ td, th, a, li, blockquote {
 /* =========================================
    3. دیوار آتش برای آیکون‌ها (The Firewall) ⛔
    ========================================= */
-/* پکیج Unfold از Material Symbols استفاده می‌کند.
-   این بخش هرگونه فونت وزیر را از روی آیکون‌ها می‌کَنَد و فونت اصلی را برمی‌گرداند. */
 
 .material-symbols-outlined,
 .material-icons,
@@ -85,4 +83,112 @@ html[dir="rtl"] td {
 /* اصلاح جهت فلش‌های منوهای تودرتو */
 html[dir="rtl"] .unfold-sidebar-item-arrow {
     transform: rotate(180deg);
+}
+
+/* =========================================
+   5. اصلاح نمایش اینپوت‌ها (Fix Input Visibility)
+   ========================================= */
+
+/* استایل عمومی برای تمام اینپوت‌های متنی و سلکت‌ها */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+select,
+textarea {
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-color: #d1d5db !important; /* رنگ خاکستری روشن برای لایت مود */
+    background-color: #f9fafb !important; /* پس زمینه خیلی روشن */
+    border-radius: 0.375rem !important; /* rounded-md */
+    padding: 0.5rem 0.75rem !important;
+    transition: all 0.2s !important;
+}
+
+/* حالت فوکوس (وقتی کلیک میشه) */
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #ef4444 !important; /* رنگ قرمز دیجی‌شاپ */
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+    outline: none !important;
+}
+
+/* =========================================
+   6. تنظیمات مخصوص Dark Mode
+   ========================================= */
+
+/* Unfold کلاس dark را به تگ html اضافه می‌کند */
+html.dark input[type="text"],
+html.dark input[type="number"],
+html.dark input[type="email"],
+html.dark input[type="password"],
+html.dark input[type="url"],
+html.dark select,
+html.dark textarea {
+    background-color: #1f2937 !important; /* خاکستری تیره */
+    border-color: #4b5563 !important; /* بوردر مشخص خاکستری */
+    color: #f3f4f6 !important; /* متن سفید */
+}
+
+html.dark input::placeholder {
+    color: #9ca3af !important;
+}
+
+/* اصلاح رنگ پس‌زمینه کانتینر ویژگی‌ها در حالت دارک */
+html.dark #dynamic-specs-container {
+    color-scheme: dark;
+}
+
+
+/* =========================================
+   7. اصلاح نهایی فرم ویژگی‌های داینامیک
+   ========================================= */
+
+/* استایل لیبل‌ها (عناوین ویژگی‌ها) */
+#dynamic-specs-container label {
+    font-size: 0.75rem; /* text-xs */
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+/* --- تنظیمات مخصوص حالت روشن (Light Mode) --- */
+/* لیبل‌ها خاکستری تیره */
+body:not(.dark) #dynamic-specs-container label {
+    color: #4b5563 !important;
+}
+/* بک‌گراند باکس‌ها سفید */
+body:not(.dark) #dynamic-specs-container > div {
+    background-color: #ffffff !important;
+    border-color: #e5e7eb !important;
+}
+
+
+/* --- تنظیمات مخصوص حالت تاریک (Dark Mode) --- */
+
+/* 1. بک‌گراند باکس‌ها باید تیره شود (نه سفید!) */
+html.dark #dynamic-specs-container > div,
+html.dark #dynamic-specs-container .bg-white {
+    background-color: #1f2937 !important; /* خاکستری خیلی تیره */
+    border-color: #374151 !important;
+}
+
+/* 2. هدر گروه (جایی که اسم گروه هست) */
+html.dark #dynamic-specs-container > div > div:first-child {
+    background-color: #111827 !important; /* تیره‌تر از بدنه */
+    border-bottom-color: #374151 !important;
+}
+
+/* 3. رنگ متن لیبل‌ها در دارک مود (سفید/روشن) */
+html.dark #dynamic-specs-container label {
+    color: #e5e7eb !important; /* سفید مایل به خاکستری */
+}
+
+/* 4. رنگ متن داخل textarea */
+html.dark #dynamic-specs-container textarea {
+    background-color: #111827 !important;
+    border-color: #4b5563 !important;
+    color: #ffffff !important;
 }

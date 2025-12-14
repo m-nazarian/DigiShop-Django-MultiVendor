@@ -7,8 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
     container.id = 'dynamic-specs-container';
     container.className = 'mt-4 space-y-4';
 
-    specsField.parentNode.insertBefore(container, specsField.nextSibling);
-    specsField.style.display = 'none';
+    if (specsField) {
+        specsField.parentNode.insertBefore(container, specsField.nextSibling);
+        specsField.style.display = 'none';
+    }
 
     let currentSpecs = {};
     try {
@@ -17,49 +19,66 @@ document.addEventListener('DOMContentLoaded', function() {
         currentSpecs = {};
     }
 
-    // تابع ساخت گروه (آکاردئون)
     function createGroup(groupName, attributes) {
-        // 1. باکس کلی گروه
+        // باکس گروه
         const groupDiv = document.createElement('div');
-        groupDiv.className = 'border border-gray-200 rounded-lg bg-white shadow-sm overflow-hidden mb-4';
+        groupDiv.className = 'border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 shadow-sm overflow-hidden mb-4';
 
-        // 2. هدر گروه (قابل کلیک)
+        // هدر گروه
         const header = document.createElement('div');
-        header.className = 'bg-gray-100 px-4 py-3 cursor-pointer flex justify-between items-center hover:bg-gray-200 transition';
+        header.className = 'bg-gray-50 dark:bg-gray-800 px-4 py-3 cursor-pointer flex justify-between items-center border-b border-gray-100 dark:border-gray-700';
         header.innerHTML = `
-            <span class="font-bold text-gray-700 text-sm">${groupName}</span>
-            <span class="text-xs text-gray-500">(${attributes.length} ویژگی) ▼</span>
+            <span class="font-bold text-gray-700 dark:text-gray-200 text-sm flex items-center gap-2">
+                <span class="w-1 h-4 bg-red-500 rounded-full block"></span>
+                ${groupName}
+            </span>
+            <span class="text-xs text-gray-500 dark:text-gray-400 group-indicator">(${attributes.length} ویژگی) ▼</span>
         `;
 
-        // 3. بدنه گروه (محل اینپوت‌ها)
+        // بدنه گروه
         const body = document.createElement('div');
-        body.className = 'p-4 grid grid-cols-1 md:grid-cols-2 gap-4';
+        body.className = 'p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-gray-900'; // پس‌زمینه بدنه تیره در دارک مود
         body.style.display = 'grid';
 
-        // عملکرد باز و بسته شدن
         header.addEventListener('click', () => {
+            const indicator = header.querySelector('.group-indicator');
             if (body.style.display === 'none') {
                 body.style.display = 'grid';
-                header.querySelector('span:last-child').innerText = `(${attributes.length} ویژگی) ▼`;
+                indicator.innerText = `(${attributes.length} ویژگی) ▼`;
             } else {
                 body.style.display = 'none';
-                header.querySelector('span:last-child').innerText = `(${attributes.length} ویژگی) ▲`;
+                indicator.innerText = `(${attributes.length} ویژگی) ▲`;
             }
         });
 
-        // 4. ساخت اینپوت‌ها
+        // ساخت فیلدها
         attributes.forEach(attr => {
             const wrapper = document.createElement('div');
+            wrapper.className = 'flex flex-col';
 
             const labelEl = document.createElement('label');
             labelEl.innerText = attr.label;
-            labelEl.className = 'block text-xs font-bold text-gray-500 mb-1';
+            // رنگ لیبل در دارک مود روشن‌تر شد
+            labelEl.className = 'block text-xs font-bold text-gray-600 dark:text-gray-300 mb-1.5';
 
-            const inputEl = document.createElement('input');
-            inputEl.type = 'text';
+            // تغیییر مهم: استفاده از Textarea به جای Input
+            const inputEl = document.createElement('textarea');
             inputEl.value = currentSpecs[attr.key] || '';
             inputEl.dataset.key = attr.key;
-            inputEl.className = 'vTextField w-full border-gray-300 rounded px-2 py-1 text-sm focus:ring focus:ring-red-200';
+            inputEl.rows = 2; // ارتفاع پیش‌فرض
+
+            // کلاس‌های اصلاح شده برای کنتراست بالا
+            inputEl.className = `
+                w-full 
+                bg-gray-50 dark:bg-gray-800 
+                text-gray-900 dark:text-gray-100 
+                border border-gray-300 dark:border-gray-600 
+                rounded-md px-3 py-2 text-sm 
+                focus:ring-1 focus:ring-red-500 focus:border-red-500 
+                placeholder-gray-400 
+                transition-colors
+                resize-y
+            `;
 
             inputEl.addEventListener('input', updateJsonField);
 
@@ -74,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateJsonField() {
-        const inputs = container.querySelectorAll('input');
+        const inputs = container.querySelectorAll('textarea'); // تغییر سلکتور به textarea
         const newData = {};
         inputs.forEach(input => {
             if (input.value.trim()) {
@@ -85,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function fetchAttributes(categoryId) {
-        container.innerHTML = '<p class="text-gray-500 text-xs p-2">در حال بارگذاری فرم‌های مشخصات...</p>';
+        container.innerHTML = '<div class="p-4 text-center text-gray-500 dark:text-gray-400 text-xs">در حال دریافت ویژگی‌ها...</div>';
 
         fetch(`/products/api/category-attributes/${categoryId}/`)
             .then(response => response.json())
@@ -93,7 +112,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 container.innerHTML = '';
 
                 if (!data.groups || data.groups.length === 0) {
-                    container.innerHTML = '<p class="text-orange-500 text-xs p-2">هیچ گروه ویژگی‌ای تعریف نشده است.</p>';
+                    container.innerHTML = `
+                        <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg text-center">
+                            <p class="text-yellow-700 dark:text-yellow-500 text-sm">هیچ ویژگی خاصی برای این دسته‌بندی تعریف نشده است.</p>
+                        </div>
+                    `;
                     specsField.style.display = 'block';
                     return;
                 }

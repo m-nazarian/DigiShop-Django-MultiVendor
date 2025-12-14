@@ -38,10 +38,14 @@ def product_list(request):
         products = products.filter(category__in=current_category.get_descendants(include_self=True))
 
         category_family_ids = current_category.get_ancestors(include_self=True).values_list('id', flat=True)
-        attributes = ProductAttribute.objects.filter(category_id__in=category_family_ids)
+
+        # --- اصلاح مهم اینجاست 👇 ---
+        # چون ویژگی به گروه وصله، باید از طریق group به category برسیم
+        attributes = ProductAttribute.objects.filter(group__category_id__in=category_family_ids)
 
         for attr in attributes:
             spec_key = attr.key
+            # مقادیر یکتا رو پیدا میکنیم
             values = products.values_list(f'specifications__{spec_key}', flat=True).distinct()
             clean_values = [v for v in values if v]
             if clean_values:
@@ -51,6 +55,7 @@ def product_list(request):
                     'values': sorted(clean_values)
                 })
 
+    # بقیه کدها مثل قبل (برند، سرچ، فیلترهای spec_ و مرتب‌سازی)...
     brands_slugs = request.GET.getlist('brand')
     if brands_slugs:
         products = products.filter(brand__slug__in=brands_slugs)
@@ -89,7 +94,6 @@ def product_list(request):
 
 # --- جزئیات محصول ---
 def product_detail(request, slug):
-    # 1. دریافت محصول با تمام وابستگی‌ها (بهینه شده)
     product = get_object_or_404(
         Product.objects.select_related('vendor', 'category', 'brand')
         .prefetch_related('images', 'reviews__user'),
@@ -97,8 +101,25 @@ def product_detail(request, slug):
         status=Product.Status.PUBLISHED
     )
 
-    # 2. آماده‌سازی مشخصات فنی گروه‌بندی شده
     category_family = product.category.get_ancestors(include_self=True)
+
+    main_attrs = ProductAttribute.objects.filter(
+        group__category__in=category_family,
+        is_main=True
+    ).order_by('group__order', 'order')
+
+    summary_specs = []
+    for attr in main_attrs:
+        value = product.specifications.get(attr.key)
+        if value:
+            summary_specs.append({
+                'label': attr.label,
+                'value': value
+            })
+
+    summary_specs = summary_specs[:6]
+
+
     attribute_groups = AttributeGroup.objects.filter(category__in=category_family).prefetch_related('attributes')
 
     specs_display = []
@@ -111,21 +132,21 @@ def product_detail(request, slug):
         if group_specs:
             specs_display.append({'name': group.name, 'items': group_specs})
 
-    # 3. مدیریت نظرات و امتیاز
     reviews = product.reviews.all()
     avg_rating = 0
     if reviews.exists():
         avg_rating = sum(r.score for r in reviews) / reviews.count()
 
-    # 4. فرم نظرات
+    # فرم نظرات
     form = ReviewForm()
 
     context = {
         'product': product,
-        'specs_display': specs_display,  # برای ویژگی‌های گروه‌بندی شده
-        'reviews': reviews,  # برای لیست نظرات
+        'specs_display': specs_display,
+        'summary_specs': summary_specs,
+        'reviews': reviews,
         'avg_rating': round(avg_rating, 1),
-        'range_5': range(1, 6),  # برای نمایش ستاره‌ها در تمپلیت
-        'form': form,  # برای فرم ثبت نظر
+        'range_5': range(1, 6),
+        'form': form,
     }
     return render(request, 'products/product_detail.html', context)

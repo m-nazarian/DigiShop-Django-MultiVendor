@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 from accounts.models import Vendor
 from django.conf import settings
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -208,9 +208,21 @@ class ProductAttribute(models.Model):
     group = models.ForeignKey(AttributeGroup, on_delete=models.CASCADE, related_name='attributes',
                               verbose_name='گروه والد')
 
-    key = models.CharField(max_length=50, verbose_name='نام ویژگی (انگلیسی)', help_text="مثال: ram")
-    label = models.CharField(max_length=50, verbose_name='عنوان نمایشی (فارسی)', help_text="مثال: حافظه رم")
+    # تغییر این فیلد 👇
+    key = models.CharField(
+        max_length=50,
+        verbose_name='نام ویژگی (انگلیسی)',
+        help_text="فقط حروف انگلیسی کوچک و _ مجاز است. مثال: screen_size",
+        validators=[
+            RegexValidator(
+                regex=r'^[a-z0-9_]+$',
+                message='نام ویژگی فقط می‌تواند شامل حروف کوچک انگلیسی، اعداد و خط زیر (_) باشد. فاصله مجاز نیست.'
+            )
+        ]
+    )
 
+    label = models.CharField(max_length=50, verbose_name='عنوان نمایشی (فارسی)', help_text="مثال: حافظه رم")
+    is_main = models.BooleanField(default=False, verbose_name='نمایش در ویژگی‌های اصلی')
     order = models.PositiveIntegerField(default=0, verbose_name='ترتیب')
 
     class Meta:

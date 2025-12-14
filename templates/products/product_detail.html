@@ -71,14 +71,24 @@
 
         <div class="mb-6">
             <h3 class="font-bold text-sm mb-2 text-gray-700">ویژگی‌های اصلی:</h3>
-            <ul class="text-sm text-gray-500 space-y-1 list-disc list-inside">
-                {# نمایش ۴ ویژگی اول جیسون برای خلاصه #}
-                {% for key, value in product.specifications.items|slice:":4" %}
-                    <li><span class="text-gray-700">{{ key }}:</span> {{ value }}</li>
-                {% empty %}
-                    <li>مشخصات فنی ثبت نشده است.</li>
-                {% endfor %}
-            </ul>
+
+            {% if summary_specs %}
+                <ul class="text-sm text-gray-500 space-y-2 list-disc list-inside">
+                    {% for item in summary_specs %}
+                        <li class="flex flex-col sm:block">
+                            <span class="text-gray-700 font-bold ml-1">{{ item.label }}:</span>
+                            <span class="text-gray-600 inline-block align-top">{{ item.value|linebreaksbr }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-xs text-gray-400">ویژگی مهمی تعیین نشده است.</p>
+            {% endif %}
+
+            <button @click="activeTab = 'specs'; $el.scrollIntoView({behavior: 'smooth'})" class="text-xs text-red-600 mt-3 hover:underline cursor-pointer flex items-center gap-1">
+                مشاهده تمام مشخصات
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
         </div>
     </div>
 
@@ -135,7 +145,9 @@
 
     <div x-show="activeTab === 'specs'" style="display: none;">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 class="font-bold text-xl text-gray-800 mb-6 flex items-center gap-2"><span class="w-1 h-6 bg-red-600 rounded-full block"></span>مشخصات فنی</h2>
+            <h2 class="font-bold text-xl text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-1 h-6 bg-red-600 rounded-full block"></span>مشخصات فنی
+            </h2>
             <div class="space-y-8">
                 {% for group in specs_display %}
                 <div>
@@ -143,8 +155,14 @@
                     <div class="bg-gray-50 rounded-lg border border-gray-100 overflow-hidden">
                         {% for item in group.items %}
                         <div class="flex flex-col sm:flex-row border-b border-gray-200 last:border-0">
-                            <div class="sm:w-1/4 bg-gray-100 px-4 py-3 text-sm font-medium text-gray-600 flex items-center">{{ item.label }}</div>
-                            <div class="sm:w-3/4 px-4 py-3 text-sm text-gray-800 font-bold bg-white">{{ item.value }}</div>
+                            <div class="sm:w-1/4 bg-gray-100 px-4 py-3 text-sm font-medium text-gray-600 flex items-center">
+                                {{ item.label }}
+                            </div>
+
+                            <div class="sm:w-3/4 px-4 py-3 text-sm text-gray-800 font-bold bg-white leading-7">
+                                {{ item.value|linebreaksbr }}
+                            </div>
+
                         </div>
                         {% endfor %}
                     </div>
