@@ -1,18 +1,43 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
+from core.models import HomeBanner, Slider
 from products.models import Product, Review
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from products.forms import ReviewForm
 
+
 def home(request):
-    products = Product.objects.filter(
+    # 1. اسلایدرهای اصلی
+    sliders = Slider.objects.filter(is_active=True)
+
+    # 2. بنرها
+    banners = HomeBanner.objects.filter(is_active=True).order_by('order')
+    context_banners = {
+        'top_left': banners.filter(position='top_left')[:2],  # دو تا بنر سمت چپ اسلایدر
+        'mid_two': banners.filter(position='mid_two')[:2],  # بنرهای میانی
+        'bottom_four': banners.filter(position='bottom_four')[:4]  # بنرهای پایینی
+    }
+
+    # 3. محصولات شگفت‌انگیز
+    amazing_products = Product.objects.filter(
+        status=Product.Status.PUBLISHED,
+        is_available=True,
+        discount_price__isnull=False,
+        stock__gt=0
+    ).order_by('-created_at')[:10]
+
+    # 4. جدیدترین محصولات
+    latest_products = Product.objects.filter(
         status=Product.Status.PUBLISHED,
         is_available=True
-    ).select_related('category', 'brand', 'vendor').order_by('-created_at')[:12]
+    ).order_by('-created_at')[:12]
 
     context = {
-        'products': products
+        'sliders': sliders,
+        'banners': context_banners,
+        'amazing_products': amazing_products,
+        'latest_products': latest_products,
     }
     return render(request, 'core/home.html', context)
 

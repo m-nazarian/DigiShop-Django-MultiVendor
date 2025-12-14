@@ -1,74 +1,198 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load static %}
+
+{% block title %}فروشگاه اینترنتی دیجی‌شاپ{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
-<div class="mb-12 bg-white rounded-2xl p-8 shadow-sm text-center border border-gray-100">
-    <h1 class="text-3xl font-bold mb-4 text-gray-900">بهترین‌ها را از ما بخواهید</h1>
-    <p class="text-gray-500 mb-6">جستجو در بین هزاران محصول با بهترین قیمت</p>
-    <div class="max-w-xl mx-auto relative">
-        <input type="text" class="w-full py-3 px-5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none" placeholder="نام محصول، برند یا دسته...">
-    </div>
-</div>
+<section class="mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
-<div class="flex justify-between items-center mb-6">
-    <h2 class="text-xl font-bold border-r-4 border-red-600 pr-3">جدیدترین محصولات</h2>
-    <a href="#" class="text-red-600 text-sm hover:underline">مشاهده همه</a>
-</div>
-
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-    {% for product in products %}
-    <a href="{{ product.get_absolute_url }}" class="block">
-        <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 overflow-hidden group">
-            <div class="relative aspect-square bg-gray-100 overflow-hidden">
-                {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                {% else %}
-                    <div class="flex items-center justify-center h-full text-gray-400">بدون تصویر</div>
-                {% endif %}
-
-                {% if product.discount_price %}
-                <span class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
-                    تخفیف
-                </span>
-                {% endif %}
-            </div>
-
-            <div class="p-4">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{{ product.category.name }}</span>
-                    {% if product.brand %}
-                    <span class="text-xs text-blue-500 font-medium">{{ product.brand.name }}</span>
-                    {% endif %}
+        <div class="lg:col-span-8">
+            <div class="swiper main-slider rounded-2xl overflow-hidden h-[300px] md:h-[400px]">
+                <div class="swiper-wrapper">
+                    {% for slider in sliders %}
+                    <div class="swiper-slide relative">
+                        <a href="{{ slider.url }}" class="block w-full h-full">
+                            <img src="{{ slider.image.url }}" class="w-full h-full object-cover" alt="{{ slider.title }}">
+                        </a>
+                        </div>
+                    {% endfor %}
                 </div>
-
-                <h3 class="font-bold text-gray-800 text-sm mb-3 line-clamp-2 h-10 leading-5">
-                    {{ product.name }}
-                </h3>
-
-                <div class="flex flex-col items-end gap-1">
-                    {% if product.discount_price %}
-                        <span class="text-xs text-gray-400 line-through">{{ product.price|intcomma }} تومان</span>
-                        <span class="text-lg font-bold text-gray-900">{{ product.discount_price|intcomma }} <span class="text-xs font-normal">تومان</span></span>
-                    {% else %}
-                        <span class="text-lg font-bold text-gray-900">{{ product.price|intcomma }} <span class="text-xs font-normal">تومان</span></span>
-                    {% endif %}
-                </div>
-
-                <div class="mt-4 pt-3 border-t border-gray-50 flex justify-between items-center text-xs text-gray-500">
-                    <div class="flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                        {{ product.vendor.store_name }}
-                    </div>
-                </div>
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-next !text-white/50 hover:!text-white"></div>
+                <div class="swiper-button-prev !text-white/50 hover:!text-white"></div>
             </div>
         </div>
-    </a>
-    {% empty %}
-    <div class="col-span-full text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-        <p class="text-gray-500">هنوز محصولی اضافه نشده است.</p>
+
+        <div class="lg:col-span-4 flex flex-col gap-4">
+            {% for banner in banners.top_left %}
+            <a href="{{ banner.url }}" class="h-[142px] md:h-[192px] rounded-2xl overflow-hidden group">
+                <img src="{{ banner.image.url }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500" alt="{{ banner.title }}">
+            </a>
+            {% endfor %}
+
+            {% if not banners.top_left %}
+                <div class="h-full bg-gray-100 rounded-2xl flex items-center justify-center text-gray-400">
+                    محل تبلیغات شما
+                </div>
+            {% endif %}
+        </div>
     </div>
+</section>
+
+
+{% if amazing_products %}
+<section class="bg-red-500 py-8 px-4 rounded-3xl mb-12 shadow-xl relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" style="background-image: url('{% static "img/pattern.png" %}');"></div>
+
+    <div class="flex flex-col lg:flex-row gap-6 items-center">
+
+        <div class="lg:w-1/6 text-center text-white flex flex-col items-center justify-center">
+            <img src="https://www.digikala.com/statics/img/svg/amazing-typo.svg" class="w-24 mb-4" alt="Amazing">
+            <img src="https://www.digikala.com/statics/img/png/specialCarousel/box.png" class="w-24 mb-4" alt="Box">
+            <a href="#" class="text-sm border border-white/50 rounded-lg px-3 py-1 hover:bg-white hover:text-red-500 transition">مشاهده همه</a>
+        </div>
+
+        <div class="lg:w-5/6 w-full">
+            <div class="swiper amazing-slider pr-2">
+                <div class="swiper-wrapper py-2"> {% for product in amazing_products %}
+                    <div class="swiper-slide bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition h-auto flex flex-col">
+                        <a href="{{ product.get_absolute_url }}" class="block mb-3 relative aspect-square">
+                            <img src="{{ product.image.url }}" class="w-full h-full object-contain mix-blend-multiply" alt="{{ product.name }}">
+                            <span class="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                ویژه
+                            </span>
+                        </a>
+                        <h3 class="text-xs font-bold text-gray-700 leading-6 mb-2 line-clamp-2 h-10">
+                            <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                        </h3>
+                        <div class="mt-auto">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="bg-red-100 text-red-600 text-[10px] font-bold px-1.5 py-0.5 rounded-md">
+                                    {{ product.discount_percent }}%
+                                </span>
+                                <span class="text-xs text-gray-400 line-through decoration-red-500">
+                                    {{ product.price|intcomma }}
+                                </span>
+                            </div>
+                            <div class="text-left font-bold text-gray-800 text-sm">
+                                {{ product.discount_price|intcomma }} <span class="text-[10px] font-normal">تومان</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="swiper-button-next !w-8 !h-8 !bg-white !rounded-full !text-gray-500 !shadow-md after:!text-xs"></div>
+                <div class="swiper-button-prev !w-8 !h-8 !bg-white !rounded-full !text-gray-500 !shadow-md after:!text-xs"></div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+{% if banners.mid_two %}
+<section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+    {% for banner in banners.mid_two %}
+    <a href="{{ banner.url }}" class="rounded-2xl overflow-hidden group">
+        <img src="{{ banner.image.url }}" class="w-full h-auto object-cover transform group-hover:scale-105 transition duration-500" alt="{{ banner.title }}">
+    </a>
     {% endfor %}
-</div>
+</section>
+{% endif %}
+
+
+<section class="mb-12 border border-gray-200 rounded-2xl p-6 bg-white">
+    <div class="flex justify-between items-end mb-6">
+        <h2 class="text-xl font-bold text-gray-800 border-b-2 border-red-500 pb-2 inline-block">جدیدترین محصولات</h2>
+        <a href="{% url 'products:product_list' %}" class="text-sm text-blue-500 hover:text-blue-700">مشاهده همه</a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+        {% for product in latest_products %}
+        <div class="bg-white hover:shadow-lg rounded-xl p-3 transition border border-transparent hover:border-gray-100 group">
+            <a href="{{ product.get_absolute_url }}" class="block mb-3 aspect-square relative bg-gray-50 rounded-lg p-2">
+                <img src="{{ product.image.url }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition" alt="{{ product.name }}">
+                {% if product.stock == 0 %}
+                    <div class="absolute inset-0 bg-white/60 flex items-center justify-center">
+                        <span class="bg-gray-800 text-white text-xs px-2 py-1 rounded">ناموجود</span>
+                    </div>
+                {% endif %}
+            </a>
+            <h3 class="text-xs font-medium text-gray-700 leading-5 mb-2 line-clamp-2 h-10">
+                <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+            </h3>
+            <div class="flex flex-col items-end">
+                {% if product.discount_price %}
+                    <span class="text-xs text-gray-400 line-through">{{ product.price|intcomma }}</span>
+                    <span class="text-sm font-bold text-gray-900">{{ product.discount_price|intcomma }} تومان</span>
+                {% else %}
+                    <span class="text-sm font-bold text-gray-900">{{ product.price|intcomma }} تومان</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+
+{% if banners.bottom_four %}
+<section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+    {% for banner in banners.bottom_four %}
+    <a href="{{ banner.url }}" class="rounded-xl overflow-hidden group">
+        <img src="{{ banner.image.url }}" class="w-full h-auto object-cover transform group-hover:scale-105 transition duration-500" alt="{{ banner.title }}">
+    </a>
+    {% endfor %}
+</section>
+{% endif %}
+
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+    // 1. تنظیمات اسلایدر اصلی
+    new Swiper('.main-slider', {
+        loop: true,
+        autoplay: {
+            delay: 4000,
+            disableOnInteraction: false,
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        effect: 'fade', // افکت فید برای زیبایی بیشتر
+    });
+
+    // 2. تنظیمات اسلایدر شگفت‌انگیز
+    new Swiper('.amazing-slider', {
+        slidesPerView: 1.5, // در موبایل
+        spaceBetween: 10,
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        breakpoints: {
+            640: {
+                slidesPerView: 2.5,
+                spaceBetween: 15,
+            },
+            768: {
+                slidesPerView: 3.5,
+                spaceBetween: 15,
+            },
+            1024: {
+                slidesPerView: 5.5, // تعداد آیتم‌ها در دسکتاپ
+                spaceBetween: 15,
+            },
+        },
+    });
+</script>
 
 {% endblock %}

@@ -136,6 +136,15 @@ class Product(models.Model):
     def get_absolute_url(self):
         return reverse('products:product_detail', args=[self.slug])
 
+    @property
+    def discount_percent(self):
+        """محاسبه درصد تخفیف"""
+        if self.price > 0 and self.discount_price:
+            discount_amount = self.price - self.discount_price
+            percent = (discount_amount / self.price) * 100
+            return int(percent)
+        return 0
+
 
 
 class ProductImage(models.Model):
