@@ -46,13 +46,24 @@ def product_list(request):
 
         for attr in attributes:
             spec_key = attr.key
-            values = products.values_list(f'specifications__{spec_key}', flat=True).distinct()
-            clean_values = [v for v in values if v]
-            if clean_values:
+
+            raw_values = products.values_list(f'specifications__{spec_key}', flat=True)
+
+            # استفاده از set برای حذف تکراری‌های واقعی
+            clean_values_set = set()
+
+            for val in raw_values:
+                if val:
+                    # تبدیل به رشته و حذف فاصله‌های اول و آخر
+                    clean_val = str(val).strip()
+                    if clean_val:
+                        clean_values_set.add(clean_val)
+
+            if clean_values_set:
                 filterable_specs.append({
                     'key': spec_key,
                     'label': attr.label,
-                    'values': sorted(clean_values)
+                    'values': sorted(list(clean_values_set))
                 })
 
     brands_slugs = request.GET.getlist('brand')
