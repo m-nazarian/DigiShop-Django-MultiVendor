@@ -27,6 +27,12 @@ class Category(MPTTModel):
     image = models.ImageField(upload_to='categories/images/', blank=True, null=True, verbose_name='تصویر')
     is_active = models.BooleanField(default=True, verbose_name='فعال')
 
+    is_comparison_root = models.BooleanField(
+        default=False,
+        verbose_name='اجازه مقایسه زیرمجموعه‌ها',
+        help_text="اگر این تیک را بزنید، تمام محصولات موجود در زیرمجموعه‌های این دسته می‌توانند با هم مقایسه شوند. (مثلاً برای دسته 'موبایل' تیک بزنید تا سامسونگ و اپل مقایسه شوند)"
+    )
+
     class MPTTMeta:
         order_insertion_by = ['name']
 

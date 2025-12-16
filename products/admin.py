@@ -25,7 +25,8 @@ class MegaMenuItemInline(admin.TabularInline):
 
 @admin.register(Category)
 class CategoryAdmin(DraggableMPTTAdmin):
-    list_display = ['tree_actions', 'indented_title', 'slug', 'is_active']
+    list_display = ['tree_actions', 'indented_title', 'slug', 'is_comparison_root', 'is_active']
+    list_editable = ['is_comparison_root', 'is_active']
     list_display_links = ['indented_title']
     search_fields = ['name']
     prepopulated_fields = {'slug': ('name',)}

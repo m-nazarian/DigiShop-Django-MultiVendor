@@ -1,0 +1,77 @@
+{% load humanize %}
+
+<div id="compare-table-container" class="overflow-x-auto pb-4 custom-scrollbar fade-in">
+    {% if products %}
+    <table class="w-full min-w-[800px] border-collapse text-right">
+        <thead>
+            <tr>
+                <th class="p-4 bg-gray-50 border-b min-w-[200px] sticky right-0 z-10 text-gray-500 font-normal align-middle">
+                    مشخصات کلی
+                </th>
+                {% for product in products %}
+                <th class="p-4 border-b min-w-[250px] align-top bg-white relative group">
+                    <div class="flex flex-col items-center">
+                        <button hx-post="{% url 'products:remove_from_compare' product.id %}"
+                                hx-target="#compare-table-container"
+                                hx-swap="outerHTML"
+                                class="absolute -top-2 -right-2 bg-gray-100 hover:bg-red-100 text-gray-400 hover:text-red-600 rounded-full p-1 transition cursor-pointer z-20">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+
+                        <a href="{{ product.get_absolute_url }}" class="block w-32 h-32 mb-3">
+                            <img src="{{ product.image.url }}" class="w-full h-full object-contain mix-blend-multiply" alt="{{ product.name }}">
+                        </a>
+                        <a href="{{ product.get_absolute_url }}" class="text-sm font-bold text-gray-800 hover:text-red-600 text-center line-clamp-2 h-10 mb-2">
+                            {{ product.name }}
+                        </a>
+
+                        {% if product.is_available %}
+                            <div class="text-lg font-bold text-gray-900 mb-2">{{ product.final_price|intcomma }} <span class="text-xs">تومان</span></div>
+                            <button hx-post="{% url 'orders:cart_add' product.id %}" hx-target="#cart-dropdown-container" hx-swap="outerHTML" class="w-full py-2 bg-red-600 text-white text-xs font-bold rounded-lg hover:bg-red-700 transition">
+                                افزودن به سبد
+                            </button>
+                        {% else %}
+                            <div class="text-gray-400 font-bold bg-gray-100 px-3 py-1 rounded text-sm mt-2">ناموجود</div>
+                        {% endif %}
+                    </div>
+                </th>
+                {% endfor %}
+
+                {% if products|length < 4 %}
+                <th class="p-4 border-b min-w-[250px] bg-gray-50/30 align-middle text-center">
+                    <button @click="showAddModal = true; setTimeout(() => $refs.searchInput.focus(), 100)" class="flex flex-col items-center justify-center h-full text-gray-400 hover:text-blue-600 transition cursor-pointer w-full py-10 border-2 border-dashed border-gray-300 hover:border-blue-400 rounded-xl">
+                        <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <span class="text-sm font-bold">افزودن محصول</span>
+                    </button>
+                </th>
+                {% endif %}
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for group in comparison_data %}
+                <tr><td colspan="5" class="bg-gray-100 p-3 font-bold text-gray-700 text-sm border-y border-gray-200">{{ group.group_name }}</td></tr>
+                {% for attr in group.attributes %}
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="p-4 text-sm text-gray-500 border-b font-medium bg-gray-50/30">{{ attr.label }}</td>
+                    {% for val in attr.values %}
+                    <td class="p-4 text-sm text-gray-800 border-b text-center font-medium leading-7">
+                        {% if val == '-' %}<span class="text-gray-300">-</span>
+                        {% elif val == True %}<svg class="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        {% elif val == False %}<svg class="w-5 h-5 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        {% else %}{{ val|linebreaksbr }}{% endif %}
+                    </td>
+                    {% endfor %}
+                    {% if products|length < 4 %}<td class="border-b"></td>{% endif %}
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="text-center py-20 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+        <p class="text-gray-500 text-lg mb-4">لیست مقایسه خالی است.</p>
+        <a href="{% url 'products:product_list' %}" class="inline-block bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">مشاهده محصولات</a>
+    </div>
+    {% endif %}
+</div>

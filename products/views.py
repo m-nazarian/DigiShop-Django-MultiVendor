@@ -1,9 +1,12 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from .models import ProductAttribute, Category, Product, Brand, AttributeGroup, Review
 from .forms import ReviewForm
+from django.contrib import messages
 from django.db.models import Count, Q
+from django.template.loader import render_to_string
+from django.utils.text import Truncator
 
 
 # --- API مربوط به پنل ادمین ---
@@ -190,3 +193,182 @@ def amazing_offers(request):
         'products': products
     }
     return render(request, 'products/amazing_offers.html', context)
+
+
+# 1. تابع کمکی برای رندر کردن جدول
+def render_compare_table(request):
+    compare_list = request.session.get('compare_list', [])
+    products = Product.objects.filter(id__in=compare_list)
+
+    context = {'products': products}
+
+    if products.exists():
+        reference_category = products.first().category
+        category_family = reference_category.get_ancestors(include_self=True)
+        groups = AttributeGroup.objects.filter(category__in=category_family).prefetch_related('attributes').order_by(
+            'category__level', 'order')
+
+        comparison_data = []
+        for group in groups:
+            group_attrs = []
+            for attr in group.attributes.all():
+                row = {'label': attr.label, 'values': []}
+                has_value = False
+                for product in products:
+                    val = product.specifications.get(attr.key, '-')
+                    row['values'].append(val)
+                    if val != '-': has_value = True
+                if has_value: group_attrs.append(row)
+            if group_attrs: comparison_data.append({'group_name': group.name, 'attributes': group_attrs})
+
+        context['comparison_data'] = comparison_data
+
+    # اگر درخواست HTMX بود، فقط پارشیال جدول رو برگردون
+    return render(request, 'products/partials/compare_table.html', context)
+
+
+# 2. ویوی اصلی صفحه مقایسه
+def compare_products(request):
+    # برای بار اول که صفحه باز میشه، کل قالب رو میفرستیم
+    # اما دیتای جدول رو با همون تابع کمکی میسازیم
+    response = render_compare_table(request)
+
+    compare_list = request.session.get('compare_list', [])
+    products = Product.objects.filter(id__in=compare_list)
+
+    # لاجیک ساخت comparison_data
+    comparison_data = []
+    if products.exists():
+        reference_category = products.first().category
+        category_family = reference_category.get_ancestors(include_self=True)
+        groups = AttributeGroup.objects.filter(category__in=category_family).prefetch_related('attributes')
+
+        for group in groups:
+            group_attrs = []
+            for attr in group.attributes.all():
+                row = {'label': attr.label, 'values': []}
+                has_value = False
+                for product in products:
+                    val = product.specifications.get(attr.key, '-')
+                    row['values'].append(val)
+                    if val != '-': has_value = True
+                if has_value: group_attrs.append(row)
+            if group_attrs: comparison_data.append({'group_name': group.name, 'attributes': group_attrs})
+
+    context = {
+        'products': products,
+        'comparison_data': comparison_data
+    }
+    return render(request, 'products/compare.html', context)
+
+
+# 3. افزودن به مقایسه
+def add_to_compare(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    compare_list = request.session.get('compare_list', [])
+
+    msg_text = ""
+
+    short_name = Truncator(product.name).words(6, truncate='...')
+
+    # --- لاجیک بررسی و افزودن ---
+    if product_id not in compare_list:
+        is_compatible = False
+        if not compare_list:
+            is_compatible = True
+        else:
+            first_product = Product.objects.get(id=compare_list[0])
+            if product.category == first_product.category:
+                is_compatible = True
+            else:
+                cat1_ancestors = product.category.get_ancestors(include_self=True)
+                cat2_ancestors = first_product.category.get_ancestors(include_self=True)
+                common_ancestors = set(cat1_ancestors) & set(cat2_ancestors)
+                for ancestor in common_ancestors:
+                    if ancestor.is_comparison_root:
+                        is_compatible = True
+                        break
+
+        if is_compatible:
+            if len(compare_list) < 4:
+                compare_list.append(product_id)
+                request.session['compare_list'] = compare_list
+                # استفاده از نام کوتاه در پیام موفقیت
+                msg_text = f"{short_name} به لیست مقایسه اضافه شد."
+            else:
+                msg_text = "ظرفیت لیست مقایسه پر است."
+        else:
+            msg_text = "این محصول با لیست مقایسه هم‌خوانی ندارد."
+    else:
+        msg_text = f"{short_name} قبلاً در لیست وجود دارد."
+
+    # --- مدیریت پاسخ HTMX ---
+    if request.htmx:
+        if request.headers.get('HX-Target') == 'compare-table-container':
+            table_html = render_compare_table(request).content.decode('utf-8')
+            badge_html = render_to_string('core/includes/compare_badge.html', request=request)
+            return HttpResponse(table_html + badge_html)
+
+        toast_html = render_to_string('core/includes/toast_oob.html', {'message': msg_text}, request=request)
+        badge_html = render_to_string('core/includes/compare_badge.html', request=request)
+
+        return HttpResponse(toast_html + badge_html)
+
+    messages.info(request, msg_text)
+    return redirect('products:product_detail', slug=product.slug)
+
+
+def remove_from_compare(request, product_id):
+    compare_list = request.session.get('compare_list', [])
+    if product_id in compare_list:
+        compare_list.remove(product_id)
+        request.session['compare_list'] = compare_list
+
+    if request.htmx:
+        # وقتی حذف میکنیم، هم جدول باید آپدیت شه، هم بج بالای صفحه
+        table_response = render_compare_table(request)
+        table_html = table_response.content.decode('utf-8')
+
+        # رندر کردن بج جدید
+        badge_html = render_to_string('core/includes/compare_badge.html', request=request)
+
+        # ارسال هر دو با هم
+        return HttpResponse(table_html + badge_html)
+
+    return redirect('products:compare_products')
+
+
+# 5. جستجو برای مقایسه
+def search_for_compare(request):
+    query = request.GET.get('q', '').strip()
+    if not query or len(query) < 2:
+        return HttpResponse('')
+
+    compare_list = request.session.get('compare_list', [])
+
+    products = Product.objects.filter(name__icontains=query, status=Product.Status.PUBLISHED)
+
+    # اگر لیستی وجود دارد، باید فقط محصولات هم‌دسته را بیاوریم
+    if compare_list:
+        first_product = Product.objects.get(id=compare_list[0])
+        # پیدا کردن دسته‌های مجاز (خود دسته + اجدادی که تیک root دارن)
+        valid_categories = [first_product.category]
+        ancestors = first_product.category.get_ancestors(include_self=True)
+
+        # اگر یکی از اجداد root باشه، تمام زیرمجموعه‌های اون جد مجازن
+        root_category = None
+        for anc in ancestors:
+            if anc.is_comparison_root:
+                root_category = anc
+                break
+
+        if root_category:
+            products = products.filter(category__in=root_category.get_descendants(include_self=True))
+        else:
+            # اگر هیچ ریشه‌ای تعریف نشده، فقط دقیقا همون دسته رو بیار
+            products = products.filter(category=first_product.category)
+
+    # حذف محصولاتی که الان تو لیست هستن
+    products = products.exclude(id__in=compare_list)[:5]
+
+    return render(request, 'products/partials/compare_search_results.html', {'products': products})

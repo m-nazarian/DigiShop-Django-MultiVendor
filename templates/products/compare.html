@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}مقایسه محصولات{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8" x-data="{ showAddModal: false }">
+
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">مقایسه محصولات</h1>
+        {% if products %}
+        <a href="{% url 'products:product_list' %}" class="text-sm text-blue-500 hover:text-blue-700">بازگشت به لیست</a>
+        {% endif %}
+    </div>
+
+    {% include 'products/partials/compare_table.html' %}
+
+
+    <div x-show="showAddModal"
+         style="display: none;"
+         class="fixed inset-0 z-[1000] flex items-center justify-center px-4"
+         @keydown.escape.window="showAddModal = false">
+
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" @click="showAddModal = false"></div>
+
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg z-10 overflow-hidden transform transition-all p-6 relative">
+
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800">افزودن کالا به مقایسه</h3>
+                <button @click="showAddModal = false" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div class="relative mb-4">
+                <input type="text"
+                       name="q" x-ref="searchInput"
+                       placeholder="نام کالا را جستجو کنید..."
+                       class="w-full bg-gray-100 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                       hx-get="{% url 'products:search_for_compare' %}"
+                       hx-trigger="keyup changed delay:500ms"
+                       hx-target="#compare-search-results"
+                       autocomplete="off">
+                <div class="absolute left-3 top-3 text-gray-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+            </div>
+
+            <div id="compare-search-results" class="max-h-[300px] overflow-y-auto custom-scrollbar space-y-2 min-h-[100px]">
+                <p class="text-center text-gray-400 text-sm mt-8">برای پیدا کردن محصول تایپ کنید...</p>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
