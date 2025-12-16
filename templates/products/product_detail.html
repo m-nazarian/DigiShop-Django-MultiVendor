@@ -250,4 +250,50 @@
         </button>
     </div>
 
-</div> {% endblock %}
+</div>
+{% if related_products %}
+<div class="mt-12 mb-12">
+    <div class="flex items-center gap-2 mb-6">
+        <span class="w-1 h-6 bg-red-600 rounded-full block"></span>
+        <h2 class="text-xl font-bold text-gray-800">کالاهای مشابه</h2>
+    </div>
+
+    <div class="swiper related-slider pb-8">
+        <div class="swiper-wrapper">
+            {% for rp in related_products %}
+            <div class="swiper-slide bg-white border border-gray-100 rounded-xl p-3 hover:shadow-lg transition group">
+                <a href="{{ rp.get_absolute_url }}" class="block mb-3 aspect-square relative bg-gray-50 rounded-lg p-2">
+                    <img src="{{ rp.image.url }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition" alt="{{ rp.name }}">
+                </a>
+                <h3 class="text-xs font-medium text-gray-700 leading-5 mb-2 line-clamp-2 h-10">
+                    <a href="{{ rp.get_absolute_url }}">{{ rp.name }}</a>
+                </h3>
+                <div class="flex justify-end">
+                    {% if rp.discount_price %}
+                        <span class="text-sm font-bold text-gray-900">{{ rp.discount_price|intcomma }} تومان</span>
+                    {% else %}
+                        <span class="text-sm font-bold text-gray-900">{{ rp.price|intcomma }} تومان</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="swiper-pagination"></div>
+    </div>
+</div>
+
+<script>
+    new Swiper('.related-slider', {
+        slidesPerView: 2,
+        spaceBetween: 15,
+        pagination: { el: '.swiper-pagination', clickable: true },
+        breakpoints: {
+            640: { slidesPerView: 3 },
+            768: { slidesPerView: 4 },
+            1024: { slidesPerView: 5 },
+        },
+    });
+</script>
+{% endif %}
+
+{% endblock %}

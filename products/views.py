@@ -150,6 +150,13 @@ def product_detail(request, slug):
     # فرم نظرات
     form = ReviewForm()
 
+    # === محصولات مرتبط ===
+    related_products = Product.objects.filter(
+        category=product.category,  # هم‌دسته
+        status=Product.Status.PUBLISHED,  # منتشر شده
+        is_available=True
+    ).exclude(id=product.id).order_by('?')[:10]  # خود محصول رو حذف کن، رندوم ۱۰ تا بیار
+
     context = {
         'product': product,
         'specs_display': specs_display,
@@ -158,6 +165,7 @@ def product_detail(request, slug):
         'avg_rating': round(avg_rating, 1),
         'range_5': range(1, 6),
         'form': form,
+        'related_products': related_products,
     }
     return render(request, 'products/product_detail.html', context)
 
