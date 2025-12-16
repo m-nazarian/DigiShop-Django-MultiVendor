@@ -1,0 +1,87 @@
+{% load humanize %}
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div hx-get="{% url 'accounts:dashboard_orders' %}?status=processing" hx-target="#dashboard-content" class="bg-blue-50 p-6 rounded-2xl border border-blue-100 cursor-pointer hover:shadow-md transition">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-blue-800 font-bold">سفارش‌های جاری</h3>
+            <div class="bg-blue-200 p-2 rounded-lg text-blue-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+        </div>
+        <p class="text-3xl font-bold text-blue-900">{{ processing_count }}</p>
+    </div>
+
+    <div hx-get="{% url 'accounts:dashboard_orders' %}?status=delivered" hx-target="#dashboard-content" class="bg-green-50 p-6 rounded-2xl border border-green-100 cursor-pointer hover:shadow-md transition">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-green-800 font-bold">تحویل شده</h3>
+            <div class="bg-green-200 p-2 rounded-lg text-green-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+        </div>
+        <p class="text-3xl font-bold text-green-900">{{ delivered_count }}</p>
+    </div>
+
+    <div hx-get="{% url 'accounts:dashboard_favorites' %}" hx-target="#dashboard-content" class="bg-red-50 p-6 rounded-2xl border border-red-100 cursor-pointer hover:shadow-md transition">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-red-800 font-bold">علاقه‌مندی‌ها</h3>
+            <div class="bg-red-200 p-2 rounded-lg text-red-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+            </div>
+        </div>
+        <p class="text-3xl font-bold text-red-900">{{ favorites_count }}</p>
+    </div>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+        <h3 class="font-bold text-gray-800">آخرین سفارش‌ها</h3>
+        <button hx-get="{% url 'accounts:dashboard_orders' %}" hx-target="#dashboard-content" class="text-sm text-blue-500 hover:text-blue-700">مشاهده همه</button>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-right">
+            <thead class="bg-gray-50 text-gray-500 text-sm">
+                <tr>
+                    <th class="p-4">شماره</th>
+                    <th class="p-4">تاریخ</th>
+                    <th class="p-4">مبلغ کل</th>
+                    <th class="p-4">وضعیت پرداخت</th> <th class="p-4">وضعیت سفارش</th> <th class="p-4">جزئیات</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for order in recent_orders %}
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="p-4 font-bold text-gray-800">#{{ order.id }}</td>
+                    <td class="p-4 text-gray-600 text-sm">{{ order.created_at|date:"Y/m/d" }}</td>
+                    <td class="p-4 font-bold text-gray-800">{{ order.total_price|intcomma }} تومان</td>
+
+                    <td class="p-4">
+                        {% if order.is_paid %}
+                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">پرداخت شده</span>
+                        {% else %}
+                            <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">در انتظار پرداخت</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+
+                    <td class="p-4">
+                        <button hx-get="{% url 'accounts:order_detail' order.id %}"
+                                hx-target="#dashboard-content"
+                                hx-push-url="true"
+                                class="text-blue-500 hover:text-blue-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="p-8 text-center text-gray-500">سفارشی یافت نشد.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

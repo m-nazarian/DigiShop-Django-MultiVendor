@@ -1,0 +1,89 @@
+{% load humanize %}
+
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <button hx-get="{% url 'accounts:dashboard_orders' %}"
+                    hx-target="#dashboard-content"
+                    hx-push-url="true"
+                    class="bg-gray-100 p-2 rounded-lg text-gray-600 hover:bg-gray-200 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+            <h2 class="font-bold text-gray-800 text-lg">جزئیات سفارش <span class="text-red-600">#{{ order.id }}</span></h2>
+        </div>
+
+        <span class="px-3 py-1 rounded-full text-sm font-bold
+            {% if order.status == 'processing' %}bg-blue-100 text-blue-700
+            {% elif order.status == 'delivered' %}bg-green-100 text-green-700
+            {% elif order.status == 'cancelled' %}bg-red-100 text-red-700
+            {% else %}bg-gray-100 text-gray-700{% endif %}">
+            {{ order.get_status_display }}
+        </span>
+    </div>
+
+    <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-gray-50/50">
+        <div>
+            <span class="block text-xs text-gray-500 mb-1">تاریخ ثبت:</span>
+            <span class="font-bold text-gray-800">{{ order.created_at|date:"Y/m/d H:i" }}</span>
+        </div>
+        <div>
+            <span class="block text-xs text-gray-500 mb-1">تحویل گیرنده:</span>
+            <span class="font-bold text-gray-800">{{ order.full_name }}</span>
+        </div>
+        <div>
+            <span class="block text-xs text-gray-500 mb-1">شماره تماس:</span>
+            <span class="font-bold text-gray-800">{{ order.phone_number }}</span>
+        </div>
+        <div>
+            <span class="block text-xs text-gray-500 mb-1">مبلغ کل:</span>
+            <span class="font-bold text-gray-800 text-lg">{{ order.total_price|intcomma }} <span class="text-xs">تومان</span></span>
+        </div>
+        <div class="md:col-span-2 lg:col-span-4">
+            <span class="block text-xs text-gray-500 mb-1">آدرس ارسال:</span>
+            <span class="font-bold text-gray-800 leading-6">{{ order.address }}</span>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-right border-t border-gray-100">
+            <thead class="bg-gray-50 text-gray-500 text-sm">
+                <tr>
+                    <th class="p-4">تصویر</th>
+                    <th class="p-4">نام محصول</th>
+                    <th class="p-4">تعداد</th>
+                    <th class="p-4">قیمت واحد</th>
+                    <th class="p-4">قیمت کل</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for item in order.items.all %}
+                <tr class="hover:bg-gray-50">
+                    <td class="p-4">
+                        <img src="{{ item.product.image.url }}" class="w-16 h-16 object-contain mix-blend-multiply border rounded bg-white">
+                    </td>
+                    <td class="p-4">
+                        <a href="{{ item.product.get_absolute_url }}" class="font-bold text-gray-800 hover:text-red-600 block mb-1">{{ item.product.name }}</a>
+                        {% if item.product.brand %}
+                        <span class="text-xs text-gray-500">برند: {{ item.product.brand.name }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4 text-gray-700">{{ item.quantity }}</td>
+                    <td class="p-4 text-gray-700 text-sm">{{ item.price|intcomma }} تومان</td>
+                    <td class="p-4 font-bold text-gray-800">{{ item.get_cost|intcomma }} تومان</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="p-6 bg-gray-50 flex flex-col items-end gap-2">
+        <div class="flex justify-between w-full md:w-1/3 text-gray-600">
+            <span>مبلغ کل کالاها:</span>
+            <span>{{ order.total_price|intcomma }} تومان</span>
+        </div>
+        <div class="flex justify-between w-full md:w-1/3 border-t border-gray-200 pt-3 mt-1 font-bold text-lg text-gray-900">
+            <span>مبلغ پرداختی:</span>
+            <span>{{ order.total_price|intcomma }} تومان</span>
+        </div>
+    </div>
+</div>

@@ -13,6 +13,7 @@ class OrderItemInline(TabularInline):
 @admin.register(Order)
 class OrderAdmin(ModelAdmin):
     list_display = ['id', 'user', 'full_name', 'total_price', 'status', 'is_paid', 'created_at']
+    list_editable = ['status', 'is_paid']
     list_filter = ['status', 'is_paid', 'created_at']
     search_fields = ['full_name', 'phone_number', 'transaction_id']
     readonly_fields = ['total_price', 'transaction_id']

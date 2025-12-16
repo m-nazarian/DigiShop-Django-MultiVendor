@@ -1,0 +1,32 @@
+{% load humanize %}
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-6 border-b border-gray-100">
+        <h2 class="font-bold text-gray-800 text-xl">تاریخچه سفارش‌ها</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-right">
+            <thead class="bg-gray-50 text-gray-500 text-sm">
+                <tr>
+                    <th class="p-4">شماره</th>
+                    <th class="p-4">تاریخ</th>
+                    <th class="p-4">مبلغ کل</th>
+                    <th class="p-4">وضعیت پرداخت</th>
+                    <th class="p-4">وضعیت سفارش</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for order in orders %}
+                <tr class="hover:bg-gray-50">
+                    <td class="p-4">#{{ order.id }}</td>
+                    <td class="p-4">{{ order.created_at|date:"Y/m/d" }}</td>
+                    <td class="p-4 font-bold">{{ order.total_price|intcomma }}</td>
+                    <td class="p-4">{% if order.is_paid %}✅{% else %}❌{% endif %}</td>
+                    <td class="p-4">{{ order.get_status_display }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="p-6 text-center text-gray-500">سفارشی یافت نشد.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -7,10 +7,17 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('verify/', views.verify_otp_view, name='verify_otp'),
     path('logout/', views.logout_view, name='logout'),
-    path('profile/', views.dashboard_overview, name='dashboard'),
-    path('profile/addresses/', views.address_list, name='address_list'),
-    path('profile/addresses/add/', views.address_create, name='address_create'),
-    path('profile/addresses/delete/<int:pk>/', views.address_delete, name='address_delete'),
-    path('profile/wishlist/', views.wishlist_view, name='wishlist'),
-    path('profile/reviews/', views.user_reviews, name='user_reviews'),
+
+    # URL اصلی داشبورد
+    path('dashboard/', views.dashboard, name='dashboard'),
+
+    # URL های پارشیال (برای HTMX)
+    path('dashboard/summary/', views.dashboard_summary, name='dashboard_summary'),
+    path('dashboard/orders/', views.dashboard_orders, name='dashboard_orders'),
+    path('dashboard/edit-profile/', views.edit_profile, name='edit_profile'),  # ✅ جدید
+    path('dashboard/favorites/', views.dashboard_favorites, name='dashboard_favorites'),
+    path('dashboard/addresses/', views.address_list, name='address_list'),
+    path('dashboard/orders/<int:order_id>/', views.order_detail, name='order_detail'),
+
+
 ]

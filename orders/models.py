@@ -7,22 +7,23 @@ from django.core.validators import MinValueValidator
 class Order(models.Model):
     class Status(models.TextChoices):
         PENDING = 'pending', 'در انتظار پرداخت'
-        PAID = 'paid', 'پرداخت شده (در حال پردازش)'
+        PROCESSING = 'processing', 'در حال پردازش'
         SENT = 'sent', 'ارسال شده'
+        DELIVERED = 'delivered', 'تحویل شده'
         CANCELLED = 'cancelled', 'لغو شده'
         RETURNED = 'returned', 'مرجوع شده'
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders', verbose_name='کاربر')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders',
+                             verbose_name='کاربر')
 
     full_name = models.CharField(max_length=100, verbose_name='نام گیرنده')
     address = models.TextField(verbose_name='آدرس کامل')
     phone_number = models.CharField(max_length=15, verbose_name='شماره تماس')
 
     total_price = models.PositiveIntegerField(default=0, verbose_name='مبلغ کل')
-    is_paid = models.BooleanField(default=False, verbose_name='پرداخت شده؟')
+    is_paid = models.BooleanField(default=False, verbose_name='وضعیت پرداخت')
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING, verbose_name='وضعیت سفارش')
 
-    # برای پیگیری تراکنش
     transaction_id = models.CharField(max_length=100, blank=True, null=True, verbose_name='کد تراکنش')
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ثبت')
@@ -34,23 +35,26 @@ class Order(models.Model):
         verbose_name_plural = 'سفارشات'
 
     def __str__(self):
-        return f"Order {self.id} - {self.user.phone_number}"
+        return f"سفارش {self.id} - {self.user.phone_number}"
 
     def get_total_cost(self):
-        return sum(item.get_cost() for item in self.items.all())
+        return self.total_price
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE, verbose_name='سفارش')
     product = models.ForeignKey(Product, related_name='order_items', on_delete=models.CASCADE, verbose_name='محصول')
-    price = models.PositiveIntegerField(verbose_name='قیمت واحد')  # قیمت در لحظه خرید (Snapshot)
+    price = models.PositiveIntegerField(verbose_name='قیمت واحد')
     quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)], verbose_name='تعداد')
 
+    class Meta:
+        verbose_name = 'آیتم سفارش'
+        verbose_name_plural = 'آیتم‌های سفارش'
+
     def __str__(self):
-        return str(self.id)
+        return f"{self.product.name} (x{self.quantity})"
 
     def get_cost(self):
-        # اگر قیمت یا تعداد None بود، صفر در نظر بگیر
-        price = self.price if self.price else 0
-        quantity = self.quantity if self.quantity else 0
+        price = self.price if self.price is not None else 0
+        quantity = self.quantity if self.quantity is not None else 0
         return price * quantity

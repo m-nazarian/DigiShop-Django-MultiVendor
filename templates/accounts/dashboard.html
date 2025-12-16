@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}داشبورد کاربری{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
+
+                <div class="text-center mb-6 border-b border-gray-100 pb-6">
+                    <div class="w-20 h-20 bg-gray-100 rounded-full mx-auto mb-3 flex items-center justify-center text-gray-500 font-bold text-2xl">
+                        {{ user.phone_number|slice:"-2:" }}
+                    </div>
+
+                    <h2 class="font-bold text-gray-800 text-lg">
+                        {% if user.first_name or user.last_name %}
+                            {{ user.first_name }} {{ user.last_name }}
+                        {% else %}
+                            کاربر عزیز
+                        {% endif %}
+                    </h2>
+                    <p class="text-sm text-gray-500 mt-1">{{ user.phone_number }}</p>
+                </div>
+
+                <nav class="space-y-1">
+                    <button hx-get="{% url 'accounts:dashboard_summary' %}"
+                            hx-target="#dashboard-content"
+                            hx-push-url="true"
+                            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 hover:text-red-600 text-gray-600 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                        خلاصه وضعیت
+                    </button>
+
+                    <button hx-get="{% url 'accounts:dashboard_orders' %}"
+                            hx-target="#dashboard-content"
+                            hx-push-url="true"
+                            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 hover:text-red-600 text-gray-600 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        سفارش‌های من
+                    </button>
+
+                    <button hx-get="{% url 'accounts:address_list' %}"
+                            hx-target="#dashboard-content"
+                            hx-push-url="true"
+                            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 hover:text-red-600 text-gray-600 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        آدرس‌ها
+                    </button>
+
+                    <button hx-get="{% url 'accounts:dashboard_favorites' %}"
+                            hx-target="#dashboard-content"
+                            hx-push-url="true"
+                            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 hover:text-red-600 text-gray-600 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                        علاقه‌مندی‌ها
+                    </button>
+
+                    <button hx-get="{% url 'accounts:edit_profile' %}"
+                            hx-target="#dashboard-content"
+                            hx-push-url="true"
+                            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 hover:text-red-600 text-gray-600 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        ویرایش مشخصات
+                    </button>
+
+                    <a href="{% url 'accounts:logout' %}" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 hover:text-red-600 text-red-500 transition mt-4 border-t pt-4">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        خروج از حساب
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <div class="lg:col-span-3">
+
+            <div id="dashboard-content"
+                 {% if not section_template %}
+                    hx-get="{% url 'accounts:dashboard_summary' %}"
+                    hx-trigger="load"
+                 {% endif %}
+            >
+
+                 {% if section_template %}
+                    {% include section_template %}
+                 {% else %}
+                    <div class="flex justify-center py-20">
+                        <svg class="w-10 h-10 animate-spin text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </div>
+                 {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
