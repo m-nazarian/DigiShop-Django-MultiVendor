@@ -18,6 +18,7 @@ urlpatterns = [
     path('orders/', include('orders.urls')),
     path('accounts/', include('accounts.urls')),
     path('products/', include('products.urls')),
+    path('seller/', include('vendor_panel.urls')),
 
 ]
 

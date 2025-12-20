@@ -1,0 +1,50 @@
+{% load humanize %}
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+
+    <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 flex items-center justify-between">
+        <div>
+            <p class="text-sm text-blue-600 font-bold mb-1">تعداد محصولات</p>
+            <h3 class="text-3xl font-extrabold text-blue-900">{{ total_products }}</h3>
+        </div>
+        <div class="bg-blue-200 p-3 rounded-xl text-blue-700">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+        </div>
+    </div>
+
+    <div class="bg-purple-50 p-6 rounded-2xl border border-purple-100 flex items-center justify-between">
+        <div>
+            <p class="text-sm text-purple-600 font-bold mb-1">موجودی انبار</p>
+            <h3 class="text-3xl font-extrabold text-purple-900">{{ total_stock }}</h3>
+        </div>
+        <div class="bg-purple-200 p-3 rounded-xl text-purple-700">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+        </div>
+    </div>
+
+    <div class="bg-green-50 p-6 rounded-2xl border border-green-100 flex items-center justify-between">
+        <div>
+            <p class="text-sm text-green-600 font-bold mb-1">وضعیت فروشگاه</p>
+            <h3 class="text-xl font-extrabold text-green-900">
+                {{ request.user.vendor_profile.get_status_display }}
+            </h3>
+        </div>
+        <div class="bg-green-200 p-3 rounded-xl text-green-700">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white p-8 rounded-2xl border border-gray-100 text-center">
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">به پنل فروشندگان خوش آمدید! 👋</h2>
+    <p class="text-gray-500 mb-6">از منوی سمت راست می‌توانید محصولات خود را مدیریت کنید و سفارش‌های جدید را مشاهده نمایید.</p>
+
+    <div class="flex justify-center gap-4">
+        <a href="{% url 'vendor_panel:product_create' %}" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition">
+            افزودن محصول جدید
+        </a>
+        <a href="{% url 'vendor_panel:vendor_orders' %}" class="bg-gray-100 text-gray-700 px-6 py-2 rounded-xl font-bold hover:bg-gray-200 transition">
+            مشاهده سفارشات
+        </a>
+    </div>
+</div>

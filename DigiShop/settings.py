@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'products',
     'orders',
     'analytics',
+    'vendor_panel',
 ]
 
 # تنظیمات تم Unfold

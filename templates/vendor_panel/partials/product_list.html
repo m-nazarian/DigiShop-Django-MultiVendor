@@ -1,0 +1,51 @@
+{% load humanize %}
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-gray-800">محصولات فروشگاه</h2>
+        <a href="{% url 'vendor_panel:product_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-bold text-sm">
+            + افزودن محصول جدید
+        </a>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-right border-collapse">
+            <thead class="bg-gray-50 text-gray-500 text-sm">
+                <tr>
+                    <th class="p-4">تصویر</th>
+                    <th class="p-4">نام محصول</th>
+                    <th class="p-4">قیمت</th>
+                    <th class="p-4">موجودی</th>
+                    <th class="p-4">وضعیت</th>
+                    <th class="p-4">عملیات</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for product in products %}
+                <tr class="hover:bg-gray-50">
+                    <td class="p-4">
+                        <img src="{{ product.image.url }}" class="w-12 h-12 object-contain border rounded bg-white">
+                    </td>
+                    <td class="p-4 font-bold text-gray-800">{{ product.name }}</td>
+                    <td class="p-4">{{ product.price|intcomma }}</td>
+                    <td class="p-4 {% if product.stock == 0 %}text-red-500{% endif %}">{{ product.stock }}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded text-xs
+                            {% if product.status == 'published' %}bg-green-100 text-green-700
+                            {% elif product.status == 'draft' %}bg-gray-100 text-gray-700
+                            {% elif product.status == 'rejected' %}bg-red-100 text-red-700
+                            {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                            {{ product.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="p-4 flex gap-2">
+                        <a href="{% url 'vendor_panel:product_edit' product.id %}" class="text-blue-500 hover:text-blue-700">ویرایش</a>
+                        <a href="{% url 'vendor_panel:product_delete' product.id %}" onclick="return confirm('حذف شود؟')" class="text-red-500 hover:text-red-700">حذف</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="p-8 text-center text-gray-500">هیچ محصولی یافت نشد.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

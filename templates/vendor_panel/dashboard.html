@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}پنل فروشندگان{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col lg:flex-row gap-8">
+
+        <div class="w-full lg:w-64 flex-shrink-0">
+            <div class="bg-gray-900 text-white rounded-2xl shadow-lg p-6 sticky top-24">
+                <div class="text-center mb-8">
+                    <h2 class="font-bold text-xl">{{ request.user.vendor_profile.store_name }}</h2>
+                    <p class="text-xs text-gray-400 mt-1">پنل مدیریت فروشگاه</p>
+                </div>
+
+                <nav class="space-y-2">
+                    <a href="{% url 'vendor_panel:dashboard' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-800 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                        داشبورد
+                    </a>
+                    <a href="{% url 'vendor_panel:product_list' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-800 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        مدیریت محصولات
+                    </a>
+                    </nav>
+            </div>
+        </div>
+
+        <div class="flex-1">
+            <div id="vendor-content">
+                {% if section_template %}
+                    {% include section_template %}
+                {% else %}
+                    <div hx-get="{% url 'vendor_panel:dashboard' %}" hx-trigger="load" class="flex justify-center py-20">
+                         <svg class="w-10 h-10 animate-spin text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
