@@ -4,7 +4,7 @@
             <h4 class="font-bold text-lg mb-4">ثبت دیدگاه جدید</h4>
 
             {% if user.is_authenticated %}
-                <form hx-post="{% url 'core:add_review' product.slug %}"
+                <form hx-post="{% url 'products:add_review' product.slug %}"
                       hx-target="#review-section"
                       hx-swap="outerHTML">
                     {% csrf_token %}

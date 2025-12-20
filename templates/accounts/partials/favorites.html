@@ -6,11 +6,16 @@
     {% if products %}
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {% for product in products %}
-        <div class="border border-gray-100 rounded-xl p-4 hover:shadow-lg transition group relative">
+        <div id="fav-item-{{ product.id }}" class="border border-gray-100 rounded-xl p-4 hover:shadow-lg transition group relative">
 
-            <a href="{% url 'products:toggle_wishlist' product.slug %}" class="absolute top-2 left-2 bg-gray-100 text-gray-400 hover:text-red-500 p-1.5 rounded-full transition z-10">
+            <button hx-post="{% url 'products:toggle_wishlist' product.slug %}"
+                    hx-target="#fav-item-{{ product.id }}"
+                    hx-swap="delete"
+                    hx-confirm="آیا مطمئن هستید؟"
+                    class="absolute top-2 left-2 bg-gray-100 text-gray-400 hover:text-red-500 p-1.5 rounded-full transition z-10 cursor-pointer"
+                    title="حذف از لیست">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-            </a>
+            </button>
 
             <a href="{{ product.get_absolute_url }}" class="block">
                 <div class="aspect-square bg-gray-50 rounded-lg mb-4 flex items-center justify-center p-2">
