@@ -169,3 +169,12 @@ def vendor_orders(request):
 
     context['section_template'] = 'vendor_panel/partials/order_list.html'
     return render(request, 'vendor_panel/vendor_dashboard.html', context)
+
+
+def seller_landing(request):
+    """صفحه معرفی و جذب فروشندگان (لندینگ)"""
+    # اگر کاربر لاگین است و قبلاً فروشنده شده، بفرستش داشبورد
+    if request.user.is_authenticated and hasattr(request.user, 'vendor_profile'):
+        return redirect('vendor_panel:dashboard')
+
+    return render(request, 'vendor_panel/landing.html')

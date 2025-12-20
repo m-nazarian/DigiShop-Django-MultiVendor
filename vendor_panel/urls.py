@@ -4,6 +4,7 @@ from . import views
 app_name = 'vendor_panel'
 
 urlpatterns = [
+    path('start-selling/', views.seller_landing, name='seller_landing'),
     path('', views.dashboard_home, name='dashboard'),
     path('register/', views.become_vendor, name='become_vendor'), # ✅ جدید
     path('orders/', views.vendor_orders, name='vendor_orders'),

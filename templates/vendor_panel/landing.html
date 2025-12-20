@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}فروشنده شوید{% endblock %}
+
+{% block content %}
+<div class="relative bg-gray-900 text-white overflow-hidden">
+    <div class="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center"></div>
+    <div class="container mx-auto px-4 py-24 relative z-10 text-center">
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
+            کسب‌وکار خود را در <span class="text-red-500">دیجی‌شاپ</span> جهانی کنید
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto">
+            بدون هزینه اولیه، ویترین فروشگاه خود را بسازید و به هزاران مشتری در سراسر ایران بفروشید.
+        </p>
+
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="{% url 'vendor_panel:become_vendor' %}" class="bg-red-600 hover:bg-red-700 text-white text-lg font-bold py-4 px-10 rounded-xl transition shadow-lg shadow-red-900/50">
+                ثبت‌نام و شروع فروش
+            </a>
+            <a href="#benefits" class="bg-gray-800 hover:bg-gray-700 text-white text-lg font-bold py-4 px-10 rounded-xl transition border border-gray-700">
+                چرا دیجی‌شاپ؟
+            </a>
+        </div>
+    </div>
+</div>
+
+<div id="benefits" class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">چرا در دیجی‌شاپ بفروشیم؟</h2>
+            <p class="text-gray-500">ما تمام ابزارهای لازم برای رشد کسب‌وکار شما را فراهم کرده‌ایم.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:-translate-y-2 transition duration-300">
+                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6 text-3xl">
+                    🚀
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">بازدید میلیونی</h3>
+                <p class="text-gray-500 leading-7">بدون هزینه تبلیغات، محصولات خود را در معرض دید هزاران بازدیدکننده روزانه قرار دهید.</p>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:-translate-y-2 transition duration-300">
+                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6 text-3xl">
+                    💰
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">تسویه حساب سریع</h3>
+                <p class="text-gray-500 leading-7">برخلاف رقبا، ما درآمد شما را در کمتر از ۴۸ ساعت پس از تحویل سفارش تسویه می‌کنیم.</p>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:-translate-y-2 transition duration-300">
+                <div class="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mb-6 text-3xl">
+                    📊
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">پنل مدیریت حرفه‌ای</h3>
+                <p class="text-gray-500 leading-7">با ابزارهای پیشرفته ما، فروش، موجودی و نظرات مشتریان را به سادگی مدیریت کنید.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">مراحل شروع همکاری</h2>
+        </div>
+
+        <div class="relative">
+            <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 z-0"></div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative z-10">
+                <div class="bg-white p-4 text-center">
+                    <div class="w-12 h-12 bg-red-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4 border-4 border-white shadow-lg">1</div>
+                    <h4 class="font-bold text-lg mb-2">ثبت‌نام</h4>
+                    <p class="text-sm text-gray-500">اطلاعات فروشگاه خود را وارد کنید.</p>
+                </div>
+                <div class="bg-white p-4 text-center">
+                    <div class="w-12 h-12 bg-red-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4 border-4 border-white shadow-lg">2</div>
+                    <h4 class="font-bold text-lg mb-2">احراز هویت</h4>
+                    <p class="text-sm text-gray-500">مدارک خود را بارگذاری کنید.</p>
+                </div>
+                <div class="bg-white p-4 text-center">
+                    <div class="w-12 h-12 bg-red-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4 border-4 border-white shadow-lg">3</div>
+                    <h4 class="font-bold text-lg mb-2">درج محصول</h4>
+                    <p class="text-sm text-gray-500">عکس و مشخصات کالاها را وارد کنید.</p>
+                </div>
+                <div class="bg-white p-4 text-center">
+                    <div class="w-12 h-12 bg-red-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4 border-4 border-white shadow-lg">4</div>
+                    <h4 class="font-bold text-lg mb-2">شروع فروش</h4>
+                    <p class="text-sm text-gray-500">سفارش بگیرید و درآمد کسب کنید.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="py-20 bg-gray-900 text-white text-center">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold mb-6">آماده‌اید کسب‌وکار خود را متحول کنید؟</h2>
+        <a href="{% url 'vendor_panel:become_vendor' %}" class="inline-block bg-red-600 hover:bg-red-700 text-white text-lg font-bold py-4 px-12 rounded-xl transition shadow-xl shadow-red-900/50">
+            همین حالا ثبت‌نام کنید
+        </a>
+    </div>
+</div>
+{% endblock %}

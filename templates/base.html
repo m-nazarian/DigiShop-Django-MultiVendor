@@ -90,7 +90,7 @@
 
                         <div x-show="open" @click.away="open = false" class="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50" style="display: none;">
                             <a href="{% url 'accounts:dashboard' %}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-50">پروفایل من</a>
-                            <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-50">سفارش‌های من</a>
+                            <a href="{% url 'accounts:dashboard_orders' %}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-50">سفارش‌های من</a>
                             <a href="{% url 'accounts:logout' %}" class="block px-4 py-3 text-sm text-red-600 hover:bg-red-50">خروج از حساب</a>
                         </div>
                     </div>

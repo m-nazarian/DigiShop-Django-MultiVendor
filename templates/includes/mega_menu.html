@@ -109,12 +109,29 @@
                 </div>
             </li>
 
-            <li class="mr-4 text-sm text-gray-500 border-r border-gray-200 pr-4">
+            <li class="hidden md:flex items-center gap-1 text-sm font-bold text-gray-600 hover:text-red-600 transition ml-4 border-l pl-4 border-gray-300">
                 <a href="#" class="hover:text-red-600 transition flex items-center gap-1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     سوالی دارید؟
                 </a>
             </li>
+
+            <div class="flex gap-3 items-center">
+
+        {% if user.is_authenticated and user.vendor_profile %}
+            <a href="{% url 'vendor_panel:dashboard' %}" class="hidden md:flex items-center gap-1 text-sm font-bold text-gray-600 hover:text-red-600 transition ml-4">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                پنل فروشندگان
+            </a>
+        {% else %}
+            <a href="{% url 'vendor_panel:seller_landing' %}" class="hidden md:flex items-center gap-1 text-sm font-bold text-gray-600 hover:text-red-600 transition ml-4 border-l pl-4 border-gray-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                در دیجی‌شاپ بفروشید!
+            </a>
+        {% endif %}
+
+        </div>
+
         </ul>
     </div>
 </nav>
