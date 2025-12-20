@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
+from ckeditor_uploader.fields import RichTextUploadingField
 
 
 class Category(MPTTModel):
@@ -95,7 +96,7 @@ class Product(models.Model):
 
     name = models.CharField(max_length=255, verbose_name='نام محصول')
     slug = models.SlugField(max_length=255, unique=True, allow_unicode=True, verbose_name='اسلاگ')
-    description = models.TextField(blank=True, verbose_name='توضیحات')
+    description = RichTextUploadingField(blank=True, verbose_name='توضیحات')
 
     # تصویر اصلی (کاور)
     image = models.ImageField(upload_to='products/covers/', verbose_name='تصویر اصلی')

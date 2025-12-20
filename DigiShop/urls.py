@@ -12,6 +12,7 @@ admin.site.index_title = "خوش آمدید به داشبورد مدیریت"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('ckeditor/', include('ckeditor_uploader.urls')),
     path("__reload__/", include("django_browser_reload.urls")),
     path('', include('core.urls')),
     path('orders/', include('orders.urls')),

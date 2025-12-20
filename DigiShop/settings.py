@@ -61,6 +61,8 @@ INSTALLED_APPS = [
     'django_browser_reload',
     'django_htmx',
     'mptt',
+    'ckeditor',
+    'ckeditor_uploader',
 
     # My Apps
     'core',
@@ -242,3 +244,26 @@ LOGIN_URL = '/admin/login/'
 
 MELIPAYAMAK_USERNAME = os.getenv('MELIPAYAMAK_USERNAME')
 MELIPAYAMAK_PASSWORD = os.getenv('MELIPAYAMAK_PASSWORD')
+
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_IMAGE_BACKEND = "pillow"
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Full',
+        'height': 400,
+        'width': '100%',
+        'language': 'fa',
+        'direction': 'rtl',
+        'toolbar_Full': [
+            ['Styles', 'Format', 'Font', 'FontSize'],
+            ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
+            ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar'],
+            ['Link', 'Unlink', 'Anchor'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['Source', 'Preview', 'Maximize'],
+            ['TextColor', 'BGColor'],
+        ],
+    },
+}

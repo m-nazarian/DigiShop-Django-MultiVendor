@@ -13,6 +13,20 @@
 
 
 <style>
+
+    /* استایل‌دهی به محتوای CKEditor داخل تلویند */
+    .prose p { margin-bottom: 1rem; }
+    .prose h1, .prose h2, .prose h3 { color: #1f2937; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+    .prose h1 { font-size: 1.5rem; }
+    .prose h2 { font-size: 1.25rem; }
+    .prose ul { list-style-type: disc; padding-right: 1.5rem; margin-bottom: 1rem; }
+    .prose ol { list-style-type: decimal; padding-right: 1.5rem; margin-bottom: 1rem; }
+    .prose strong { font-weight: bold; color: #111827; }
+    .prose img { max-width: 100%; height: auto; display: block; margin: 1.5rem auto; border-radius: 0.75rem; }
+    .prose a { color: #dc2626; text-decoration: underline; }
+    .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+    .prose td, .prose th { border: 1px solid #e5e7eb; padding: 0.5rem; }
+
     .scrollbar-hide::-webkit-scrollbar {
         display: none;
     }
@@ -191,7 +205,7 @@
 
         <div x-show="activeTab === 'desc'" class="prose max-w-none text-gray-600 leading-8">
             <h3 class="text-xl font-bold text-gray-900 mb-4">نقد و بررسی</h3>
-            <p>{{ product.description|linebreaks }}</p>
+            <p>{{ product.description|safe|linebreaksbr }}</p>
         </div>
 
         <div x-show="activeTab === 'specs'" style="display: none;">
