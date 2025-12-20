@@ -189,3 +189,27 @@ def order_detail(request, order_id):
 
     context['section_template'] = 'accounts/partials/order_detail.html'
     return render(request, 'accounts/dashboard.html', context)
+
+
+@login_required
+def address_create(request):
+    if request.method == 'POST':
+        form = AddressForm(request.POST)
+        if form.is_valid():
+            address = form.save(commit=False)
+            address.user = request.user
+            address.save()
+            messages.success(request, 'آدرس جدید ثبت شد.')
+            return redirect('accounts:address_list')
+    else:
+        form = AddressForm()
+
+    return render(request, 'accounts/address_form.html', {'form': form})
+
+
+@login_required
+def address_delete(request, pk):
+    address = get_object_or_404(Address, pk=pk, user=request.user)
+    address.delete()
+    messages.success(request, 'آدرس حذف شد.')
+    return redirect('accounts:address_list')

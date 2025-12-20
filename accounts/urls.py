@@ -14,10 +14,12 @@ urlpatterns = [
     # URL های پارشیال (برای HTMX)
     path('dashboard/summary/', views.dashboard_summary, name='dashboard_summary'),
     path('dashboard/orders/', views.dashboard_orders, name='dashboard_orders'),
-    path('dashboard/edit-profile/', views.edit_profile, name='edit_profile'),  # ✅ جدید
+    path('dashboard/edit-profile/', views.edit_profile, name='edit_profile'),
     path('dashboard/favorites/', views.dashboard_favorites, name='dashboard_favorites'),
     path('dashboard/addresses/', views.address_list, name='address_list'),
     path('dashboard/orders/<int:order_id>/', views.order_detail, name='order_detail'),
+    path('dashboard/addresses/add/', views.address_create, name='address_create'),
+    path('dashboard/addresses/delete/<int:pk>/', views.address_delete, name='address_delete'),
 
 
 ]

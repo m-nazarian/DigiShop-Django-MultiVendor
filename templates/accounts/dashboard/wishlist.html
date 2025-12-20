@@ -19,7 +19,7 @@
         <div class="flex justify-between items-center">
             <span class="text-red-600 font-bold">{{ product.final_price|intcomma }} تومان</span>
 
-            <form action="{% url 'core:toggle_wishlist' product.slug %}" method="post">
+            <form action="{% url 'products:toggle_wishlist' product.slug %}" method="post">
                 {% csrf_token %}
                 <button type="submit" class="text-gray-400 hover:text-red-500">
                     <svg class="w-5 h-5 fill-current text-red-500" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>

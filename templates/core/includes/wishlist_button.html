@@ -1,4 +1,4 @@
-<button hx-post="{% url 'core:toggle_wishlist' product.slug %}"
+<button hx-post="{% url 'products:toggle_wishlist' product.slug %}"
         hx-swap="outerHTML"
         class="flex items-center gap-1 transition group
                {% if request.user in product.wishlist.all %}text-red-600{% else %}text-gray-400 hover:text-red-500{% endif %}">
