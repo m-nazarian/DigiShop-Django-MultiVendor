@@ -35,19 +35,33 @@ def login_view(request):
 
 def verify_otp_view(request):
     mobile = request.session.get('auth_mobile')
-    if not mobile: return redirect('accounts:login')
+    if not mobile:
+        return redirect('accounts:login')
+
     if request.method == 'POST':
         code = request.POST.get('code')
         cached_code = cache.get(f'otp_{mobile}')
+
         if cached_code and str(cached_code) == code:
             user, created = User.objects.get_or_create(phone_number=mobile)
             login(request, user)
+
             del request.session['auth_mobile']
             cache.delete(f'otp_{mobile}')
+
             messages.success(request, 'خوش آمدید!')
+
+            next_url = request.GET.get('next')  # اگر در URL بود
+            if not next_url:
+                next_url = request.POST.get('next')  # اگر در فرم مخفی بود
+
+            if next_url:
+                return redirect(next_url)
+
             return redirect('core:home')
         else:
-            messages.error(request, 'کد اشتباه است.')
+            messages.error(request, 'کد وارد شده اشتباه یا منقضی شده است.')
+
     return render(request, 'accounts/verify.html', {'mobile': mobile})
 
 

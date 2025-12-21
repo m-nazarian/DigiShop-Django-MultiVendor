@@ -15,9 +15,16 @@
         </p>
 
         <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="{% url 'vendor_panel:become_vendor' %}" class="bg-red-600 hover:bg-red-700 text-white text-lg font-bold py-4 px-10 rounded-xl transition shadow-lg shadow-red-900/50">
-                ثبت‌نام و شروع فروش
-            </a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'vendor_panel:become_vendor' %}" class="bg-red-600 hover:bg-red-700 text-white text-lg font-bold py-4 px-10 rounded-xl transition shadow-lg shadow-red-900/50">
+                    ثبت‌نام و شروع فروش
+                </a>
+            {% else %}
+                <a href="{% url 'accounts:login' %}?next={% url 'vendor_panel:become_vendor' %}" class="bg-red-600 hover:bg-red-700 text-white text-lg font-bold py-4 px-10 rounded-xl transition shadow-lg shadow-red-900/50">
+                    ثبت‌نام و شروع فروش
+                </a>
+            {% endif %}
+
             <a href="#benefits" class="bg-gray-800 hover:bg-gray-700 text-white text-lg font-bold py-4 px-10 rounded-xl transition border border-gray-700">
                 چرا دیجی‌شاپ؟
             </a>
