@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponse
 from products.models import Product
 from .forms import ProductForm
 from django.contrib import messages
 from accounts.models import Vendor
 from orders.models import OrderItem
+from products.models import ProductImage
+import json
 
 
 # 1. دکوراتور اختصاصی برای چک کردن اینکه کاربر فروشنده است
@@ -75,6 +77,11 @@ def product_create(request):
             product.slug = slugify(product.name, allow_unicode=True) + f"-{int(time.time())}"
 
             product.save()
+
+            images = request.FILES.getlist('gallery_images')
+            for img in images:
+                ProductImage.objects.create(product=product, image=img)
+
             messages.success(request, 'محصول با موفقیت ایجاد شد.')
             return redirect('vendor_panel:product_list')
     else:
@@ -98,13 +105,18 @@ def product_edit(request, pk):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
-            form.save()
+            product = form.save()
+
+            images = request.FILES.getlist('gallery_images')
+            for img in images:
+                ProductImage.objects.create(product=product, image=img)
+
             messages.success(request, 'محصول ویرایش شد.')
             return redirect('vendor_panel:product_list')
     else:
         form = ProductForm(instance=product)
 
-    context = {'form': form, 'title': f'ویرایش {product.name}'}
+    context = {'form': form, 'title': f'ویرایش {product.name}', 'product': product}
 
     if request.htmx:
         return render(request, 'vendor_panel/partials/product_form.html', context)
@@ -120,6 +132,14 @@ def product_delete(request, pk):
     product.delete()
     messages.success(request, 'محصول حذف شد.')
     return redirect('vendor_panel:product_list')
+
+
+
+@vendor_required
+def delete_product_image(request, pk):
+    image = get_object_or_404(ProductImage, pk=pk, product__vendor=request.user.vendor_profile)
+    image.delete()
+    return HttpResponse("")
 
 
 
