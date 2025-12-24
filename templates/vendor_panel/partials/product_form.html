@@ -1,19 +1,44 @@
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6" x-data="productNameGenerator()">
     <h2 class="text-xl font-bold text-gray-800 mb-6">{{ title }}</h2>
+
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-center">
+        <p class="text-xs text-blue-600 mb-1">نام محصول شما در سایت به این صورت نمایش داده می‌شود:</p>
+        <h3 class="text-lg font-bold text-gray-800" x-text="generateName() || 'دسته‌بندی و مدل را وارد کنید...'"></h3>
+    </div>
 
     <form method="post" enctype="multipart/form-data" class="space-y-4">
         {% csrf_token %}
-
         {{ form.media }}
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">نام محصول</label>
-                {{ form.name }}
+                <label class="block text-sm font-bold text-gray-700 mb-1">دسته‌بندی</label>
+                <div @change="category = $event.target.options[$event.target.selectedIndex].text">
+                    {{ form.category }}
+                </div>
             </div>
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">دسته بندی</label>
-                {{ form.category }}
+                <label class="block text-sm font-bold text-gray-700 mb-1">برند</label>
+                <div @change="brand = $event.target.options[$event.target.selectedIndex].text">
+                    {{ form.brand }}
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">مدل محصول (انگلیسی/فارسی)</label>
+                <div @input="model = $event.target.value">
+                    {{ form.model_name }}
+                </div>
+                <p class="text-[10px] text-gray-400 mt-1">فقط نام مدل (مثال: Galaxy S24)</p>
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">ویژگی‌های کلیدی در عنوان</label>
+                <div @input="desc = $event.target.value">
+                    {{ form.title_desc }}
+                </div>
+                <p class="text-[10px] text-gray-400 mt-1">مثال: ظرفیت 256 گیگابایت رم 8</p>
             </div>
         </div>
 
@@ -53,3 +78,35 @@
         </div>
     </form>
 </div>
+
+<script>
+    function productNameGenerator() {
+        return {
+            category: '',
+            brand: '',
+            model: '{{ form.instance.model_name|default:"" }}', // مقدار اولیه برای حالت ویرایش
+            desc: '{{ form.instance.title_desc|default:"" }}',
+
+            init() {
+                const catSelect = document.querySelector('#id_category');
+                const brandSelect = document.querySelector('#id_brand');
+                if(catSelect && catSelect.selectedIndex > -1) this.category = catSelect.options[catSelect.selectedIndex].text.replace(/-/g, '').trim();
+                if(brandSelect && brandSelect.selectedIndex > -1) this.brand = brandSelect.options[brandSelect.selectedIndex].text.replace(/-/g, '').trim();
+            },
+
+            generateName() {
+                let parts = [];
+                // حذف خط تیره هایی که در منوی درختی هست (مثل ---- موبایل)
+                let cleanCategory = this.category.replace(/[-]/g, '').trim();
+                let cleanBrand = this.brand.replace(/[-]/g, '').trim();
+
+                if (cleanCategory && cleanCategory !== '---------') parts.push(cleanCategory);
+                if (cleanBrand && cleanBrand !== '---------') parts.push(cleanBrand);
+                if (this.model) parts.push('مدل ' + this.model);
+                if (this.desc) parts.push(this.desc);
+
+                return parts.join(' ');
+            }
+        }
+    }
+</script>

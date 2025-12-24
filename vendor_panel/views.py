@@ -131,7 +131,7 @@ def become_vendor(request):
 
     if request.method == 'POST':
         store_name = request.POST.get('store_name')
-        description = request.POST.get('description')
+        description = request.POST.get('description', '')
 
         if store_name:
             if Vendor.objects.filter(store_name=store_name).exists():

@@ -1,3 +1,4 @@
+from datetime import time
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
@@ -94,7 +95,9 @@ class Product(models.Model):
         verbose_name = 'برند',
     )
 
-    name = models.CharField(max_length=255, verbose_name='نام محصول')
+    name = models.CharField(max_length=255, verbose_name='نام کامل محصول (تولید خودکار)', blank=True)
+    model_name = models.CharField(max_length=100, verbose_name='مدل محصول', help_text="مثال: Galaxy S25 Ultra")
+    title_desc = models.CharField(max_length=255, verbose_name='مشخصات کلیدی در عنوان', blank=True, help_text="مثال: ظرفیت 256 گیگابایت با رم 12")
     slug = models.SlugField(max_length=255, unique=True, allow_unicode=True, verbose_name='اسلاگ')
     description = RichTextUploadingField(blank=True, verbose_name='توضیحات')
 
@@ -133,6 +136,38 @@ class Product(models.Model):
         verbose_name = 'محصول'
         verbose_name_plural = 'محصولات'
         ordering = ['-created_at']
+
+
+    def save(self, *args, **kwargs):
+        # ساخت هوشمند نام محصول
+        # فرمول: دسته + برند + مدل + مشخصات
+        full_name_parts = []
+
+        # 1. نام دسته‌بندی (مثلاً گوشی موبایل)
+        if self.category:
+            full_name_parts.append(self.category.name)
+
+        # 2. نام برند (مثلاً سامسونگ)
+        if self.brand:
+            full_name_parts.append(self.brand.name)
+
+        # 3. نام مدل (مثلاً مدل Galaxy S25)
+        if self.model_name:
+            full_name_parts.append(f"مدل {self.model_name}")
+
+        # 4. مشخصات اضافی (مثلاً ظرفیت 256...)
+        if self.title_desc:
+            full_name_parts.append(self.title_desc)
+
+        # اتصال تکه‌ها به هم
+        self.name = " ".join(full_name_parts)
+
+        # ساخت خودکار اسلاگ اگر خالی بود یا نام تغییر کرده بود
+        if not self.slug:
+            self.slug = slugify(self.name, allow_unicode=True) + f"-{int(time.time())}"
+
+        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return self.name
